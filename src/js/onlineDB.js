@@ -35,8 +35,19 @@ export class OnlineDB {
             return true;
         });
         dsObj = JSON.parse(JSON.stringify(dsObj));
-        console.log(dsObj)
-        let ds = await this.onedriveObj.getMyDriveItemFile(dsObj);
-        console.log(ds);
+        let dsBlob = await this.onedriveObj.getMyDriveItemFile(dsObj);
+        let ds = await this.readAsText(dsBlob);
+        ds = JSON.parse(ds);
+        this.ds = ds;
+    }
+
+    readAsText(blob) {
+        let reader = new FileReader();
+        reader.readAsText(blob, 'utf-8');
+        return new Promise(resolve => {
+            reader.onload = data => {
+                resolve(data.target.result);
+            }
+        });
     }
 }
