@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { client, OneDrive } from "@/libs/msla";
+import { client, OneDrive } from "./libs/msla";
 
 export default {
   name: "OneDrive",
@@ -29,7 +29,7 @@ export default {
       }
     },
     async uploadLarge() {
-      let onedrive = new OneDrive(client);
+      let onedrive = new OneDrive(client)
       let input = this.$refs.file;
       let root = await onedrive.getMyDriveRootInfo();
       if (input.files != undefined) {

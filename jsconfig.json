@@ -1,6 +1,10 @@
 {
     "include": [
         "./src/**/*",
-        "./src/**/*.d.ts"
-    ]
+        "src/libs/msla/index.d.ts",
+    ],
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs"
+    }
 }
