@@ -1,32 +1,82 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+    <div>
+      <div class="nav">Microsoft Graph API</div>
+      <ul class="api-list">
+        <li class="api-item">
+          <div class="title">ONEDRIVE</div>
+          <input type="file" ref="file" />
+          <button @click="uploadLarge">上传</button>
+        </li>
+      </ul>
     </div>
-    <router-view />
   </div>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+import { client, OneDrive } from "@/libs/msla";
+
+export default {
+  name: "OneDrive",
+  methods: {
+    async upload() {
+      let onedrive = new OneDrive(client);
+      let input = this.$refs.file;
+      let root = await onedrive.getMyDriveRootInfo();
+      if (input.files != undefined) {
+        let file = input.files[0];
+        await onedrive.putMyDriveSmallFile(root.id, file);
+      }
+    },
+    async uploadLarge() {
+      let onedrive = new OneDrive(client);
+      let input = this.$refs.file;
+      let root = await onedrive.getMyDriveRootInfo();
+      if (input.files != undefined) {
+        let file = input.files[0];
+        await onedrive.putMyDriveLargeFile(root.id, file, "rename");
+      }
+    },
+  },
+};
+</script>
+
+
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
 }
+ul,
+li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+</style>
 
-#nav {
-  padding: 30px;
-
-  a {
+<style lang="scss" scoped>
+.nav {
+    height: 50px;
+    width: 100%;
+    display: flex;
+    padding-left: 20px;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: 1.2rem;
     font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+    color: white;
+    background: #303952;
+}
+.api-list {
+    .api-item {
+        .title {
+            background: #596275;
+            padding: 10px;
+            padding-left: 20px;
+            color: white;
+        }
     }
-  }
 }
 </style>
