@@ -1,43 +1,56 @@
 <template>
-  <div id="app">
-    <div>
-      <div class="nav">Microsoft Graph API</div>
-      <ul class="api-list">
-        <li class="api-item">
-          <div class="title">ONEDRIVE</div>
-          <input type="file" ref="file" />
-          <button @click="uploadLarge">上传</button>
-        </li>
-      </ul>
+    <div id="app">
+        <div>
+            <div class="nav">Microsoft Graph API</div>
+            <ul class="api-list">
+                <li class="api-item">
+                    <div class="title">ONEDRIVE</div>
+                    <input
+                        type="file"
+                        ref="file"
+                    />
+                    <button @click="uploadLarge">上传</button>
+                </li>
+            </ul>
+        </div>
     </div>
-  </div>
 </template>
 
 <script>
 import { client, OneDrive } from "./libs/msla";
+import { OnlineDB } from "@/js/onlineDB.js";
 
 export default {
-  name: "OneDrive",
-  methods: {
-    async upload() {
-      let onedrive = new OneDrive(client);
-      let input = this.$refs.file;
-      let root = await onedrive.getMyDriveRootInfo();
-      if (input.files != undefined) {
-        let file = input.files[0];
-        await onedrive.putMyDriveSmallFile(root.id, file);
-      }
+    name: "OneDrive",
+    mounted () {
+        let db = new OnlineDB(new OneDrive(client));
+        db.initDB("/Documents/Papers/IKFB");
     },
-    async uploadLarge() {
-      let onedrive = new OneDrive(client)
-      let input = this.$refs.file;
-      let root = await onedrive.getMyDriveRootInfo();
-      if (input.files != undefined) {
-        let file = input.files[0];
-        await onedrive.putMyDriveLargeFile(root.id, file, "rename");
-      }
+    methods: {
+        async upload() {
+            let onedrive = new OneDrive(client);
+            let input = this.$refs.file;
+            let root = await onedrive.getMyDriveRootInfo();
+            if (input.files != undefined) {
+                let file = input.files[0];
+                await onedrive.putMyDriveSmallFile(root.id, file);
+            }
+        },
+        async uploadLarge() {
+            let onedrive = new OneDrive(client);
+            let input = this.$refs.file;
+            let root = await onedrive.getMyDriveRootInfo();
+            if (input.files != undefined) {
+                let file = input.files[0];
+                await onedrive.putMyDriveLargeFile(root.id, file, "rename");
+            }
+        },
+        async getRoot() {
+            let onedrive = new OneDrive(client);
+            let root = await onedrive.getMyDriveItemChildren("B5C6E21C3CAF1327!1528");
+            console.log(root);
+        }
     },
-  },
 };
 </script>
 
