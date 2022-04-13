@@ -141,11 +141,13 @@ var OneDrive = /** @class */ (function () {
     };
     OneDrive.prototype.getMyDriveItemFile = function (item) {
         return __awaiter(this, void 0, void 0, function () {
+            var url;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (!(item["@microsoft.graph.downloadUrl"] != undefined)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.client.api(item["@microsoft.graph.downloadUrl"]).responseType(microsoft_graph_client_1.ResponseType.BLOB).get()];
+                        url = item["@microsoft.graph.downloadUrl"];
+                        return [4 /*yield*/, fetch(url).then(function (response) { return response.blob(); })];
                     case 1: return [2 /*return*/, _a.sent()];
                     case 2: return [2 /*return*/, undefined];
                 }
