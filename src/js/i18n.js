@@ -426,5 +426,13 @@ export default {
     "Year": {
         "en": "Year",
         "cn": "年份"
+    },
+    "Login": {
+        "en": "Login",
+        "cn": "登录"
+    },
+    "Logout": {
+        "en": "Logout",
+        "cn": "注销"
     }
 }

@@ -11,7 +11,10 @@ export default new Vuex.Store({
         data_index: -1,
         language: 'en',
         theme: 'light',
+        // OneDrive //
+        user: null,
         onedrive: null,
+        userInfo: null,
         progress: 0,
         // ds //
         data_structure: {
@@ -37,6 +40,9 @@ export default new Vuex.Store({
         i18n: {}
     },
     mutations: {
+        reviseUser(state, obj) {
+            state.user = obj;
+        },
         reviseOnedrive(state, obj) {
             state.onedrive = obj;
         },

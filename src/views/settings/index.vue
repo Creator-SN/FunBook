@@ -8,6 +8,17 @@
         </div>
         <div class="scroll-view">
             <div class="s-item-block">
+                <fv-button
+                v-show="!userInfo"
+                    theme="dark"
+                    :is-box-shadow="true"
+                    background="rgba(0, 90, 158, 1)"
+                    style="width: 150px;"
+                    @click="login"
+                >{{local('Login')}}</fv-button>
+                
+            </div>
+            <div class="s-item-block">
                 <p class="s-item-title">{{local('Source')}}</p>
                 <fv-button
                     :theme="theme"
@@ -66,6 +77,17 @@
                     @choose-item="chooseLanguage"
                 ></fv-Combobox>
             </div>
+            <div class="s-item-block">
+                <p class="s-item-title">{{local('Logout')}}</p>
+                <fv-button
+                    theme="dark"
+                    :is-box-shadow="true"
+                    background="rgba(0, 90, 158, 1)"
+                    style="width: 150px;"
+                    @click="logout"
+                >{{local('Logout')}}</fv-button>
+                
+            </div>
         </div>
         <add-ds
             :show.sync="show.addDS"
@@ -114,6 +136,8 @@ export default {
     },
     computed: {
         ...mapState({
+            user: state => state.user,
+            userInfo: state => state.userInfo,
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
@@ -198,6 +222,15 @@ export default {
                 }
             );
         },
+        login () {
+            window.location.reload();
+        },
+        async logout () {
+            await this.user.logout();
+            this.user.getActiveAccount().then(res => {
+                console.log(res)
+            });
+        }
     },
 };
 </script>

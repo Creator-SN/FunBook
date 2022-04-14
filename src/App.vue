@@ -23,7 +23,7 @@ import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
-import { client, OneDrive } from "./libs/msla";
+import { client, User, msla, OneDrive } from "./libs/msla";
 
 export default {
     name: "App",
@@ -46,7 +46,9 @@ export default {
     },
     computed: {
         ...mapState({
-            onedrive: state => state.onedrive,
+            user: (state) => state.user,
+            onedrive: (state) => state.onedrive,
+            userInfo: (state) => state.userInfo,
             init_status: (state) => state.init_status,
             data_path: (state) => state.data_path,
             language: (state) => state.language,
@@ -63,6 +65,7 @@ export default {
     },
     methods: {
         ...mapMutations({
+            reviseUser: "reviseUser",
             reviseOnedrive: "reviseOnedrive",
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
@@ -71,13 +74,48 @@ export default {
         i18nInit() {
             this.reviseI18N(i18n);
         },
-        onedirveInit () {
+        async onedirveInit() {
+            this.reviseUser(new User(client, msla));
             this.reviseOnedrive(new OneDrive(client));
-            this.onedrive.getMyDriveInfo();
+            this.updateProgress(30);
+            let accountList = await this.user.getAccounts();
+            if (accountList.length === 0) accountList = await this.login();
+            this.updateProgress(60);
+            await this.user.setActiveAccount(accountList[0]);
+            this.updateProgress(90);
+            let userInfo = await this.user.getActiveAccount();
+            this.updateProgress(100);
+            this.reviseConfig({ userInfo });
+            this.updateProgress(101);
+            console.log(userInfo);
+        },
+        async login() {
+            this.user.login();
+            let i = 0;
+            while (i < 3000) {
+                let accountList = await new Promise((resolve) => {
+                    setTimeout(() => {
+                        this.user.getAccounts().then((res) => {
+                            resolve(res);
+                        });
+                    }, 100);
+                });
+                this.updateProgress(30 + i / 100);
+                if (accountList.length > 0) {
+                    i = 999999;
+                    return accountList;
+                }
+                i = i + 1;
+            }
+            return [];
         },
         async syncDSDB() {
             let pathList = this.data_path;
-            let oneDriveDBXListResponse = await this.$load_ds_file(this.onedrive, pathList, this.updateProgress);
+            let oneDriveDBXListResponse = await this.$load_ds_file(
+                this.onedrive,
+                pathList,
+                this.updateProgress
+            );
             if (oneDriveDBXListResponse.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
@@ -99,9 +137,9 @@ export default {
                 dbList: dbList,
             });
         },
-        updateProgress (value) {
+        updateProgress(value) {
             this.reviseConfig({
-                progress: value
+                progress: value,
             });
         },
         Go(path) {
@@ -141,7 +179,7 @@ body {
     ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
-        
+
         &:hover {
             width: 10px;
         }
