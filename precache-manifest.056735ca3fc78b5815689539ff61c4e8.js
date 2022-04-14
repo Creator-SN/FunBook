@@ -1,14 +1,14 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "0ee645ad248fdba7e91f",
+    "revision": "dc4f976e1dc83a567ddf",
     "url": "/FunBook/css/app.980913ff.css"
   },
   {
-    "revision": "b4b3441770cc858729dc",
+    "revision": "5c6111640276e607b53b",
     "url": "/FunBook/css/chunk-00b4c9d6.2c58593d.css"
   },
   {
-    "revision": "1eba4548ca18f53129ec",
+    "revision": "3166fe93ce911b0c87c3",
     "url": "/FunBook/css/chunk-0db845aa.b7197fe2.css"
   },
   {
@@ -520,20 +520,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/FunBook/img/guide_arrowhead.de9e3849.svg"
   },
   {
-    "revision": "9e2e93ddbe440e5bdf8bf4d2ce0f0973",
+    "revision": "4e3fa66e9dd877ca7f0140f259c77c23",
     "url": "/FunBook/index.html"
   },
   {
-    "revision": "0ee645ad248fdba7e91f",
-    "url": "/FunBook/js/app.2dc85258.js"
+    "revision": "dc4f976e1dc83a567ddf",
+    "url": "/FunBook/js/app.7e502843.js"
   },
   {
-    "revision": "b4b3441770cc858729dc",
-    "url": "/FunBook/js/chunk-00b4c9d6.0da8455e.js"
+    "revision": "5c6111640276e607b53b",
+    "url": "/FunBook/js/chunk-00b4c9d6.dfaf59c3.js"
   },
   {
-    "revision": "1eba4548ca18f53129ec",
-    "url": "/FunBook/js/chunk-0db845aa.d3e2e86d.js"
+    "revision": "3166fe93ce911b0c87c3",
+    "url": "/FunBook/js/chunk-0db845aa.ab3a502b.js"
   },
   {
     "revision": "b00b9d16ec546804baa7",
