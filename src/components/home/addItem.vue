@@ -37,7 +37,7 @@
             </div>
         </template>
         <template v-slot:control>
-            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !ds_db" @click="add">{{local('Confirm')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !cur_db" @click="add">{{local('Confirm')}}</fv-button>
             <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
         </template>
     </float-window-base>
@@ -99,7 +99,7 @@ export default {
             c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", 'ds_db']),
+        ...mapGetters(["local", 'cur_db']),
         v() {
             return this;
         },
@@ -116,7 +116,7 @@ export default {
             revisePdfImporter: "revisePdfImporter",
         }),
         async add () {
-            if(!this.ds_db || this.name === '')
+            if(!this.cur_db || this.name === '')
                 return;
             let _item = JSON.parse(JSON.stringify(item));
             _item.id = this.$Guid();

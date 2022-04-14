@@ -70,11 +70,12 @@ export default {
         },
         onedirveInit () {
             this.reviseOnedrive(new OneDrive(client));
+            this.onedrive.getMyDriveInfo();
         },
         async syncDSDB() {
             let pathList = this.data_path;
-            let db_array_result = await this.$load_ds_file(this.onedrive, pathList);
-            if (db_array_result.status == 404 && !this.init_status) {
+            let oneDriveDBXListResponse = await this.$load_ds_file(this.onedrive, pathList);
+            if (oneDriveDBXListResponse.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
                         "There is no source, please add a data source to getting started."
@@ -86,13 +87,13 @@ export default {
                 );
                 return;
             }
-            let db_array = db_array_result.db_array;
-            let ds_db_list = [];
-            db_array.forEach((el) => {
-                ds_db_list.push(el.db);
+            let dbXList = oneDriveDBXListResponse.dbXList;
+            let dbList = [];
+            dbXList.forEach((el) => {
+                dbList.push(el.db);
             });
             this.reviseData({
-                ds_db_list: ds_db_list,
+                dbList: dbList,
             });
         },
         Go(path) {
@@ -104,6 +105,15 @@ export default {
 </script>
 
 <style lang="scss">
+body {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 #app {
     position: fixed;
     left: 0px;

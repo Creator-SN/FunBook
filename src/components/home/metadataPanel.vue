@@ -525,7 +525,7 @@ export default {
             items: (state) => state.data_structure.items,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
     },
     mounted() {
         this.metadataInit();

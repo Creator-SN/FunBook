@@ -85,7 +85,7 @@ export default {
                     name: () => this.local("Add"),
                     icon: "Add",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null || !this.lock,
+                    disabled: () => this.cur_db === null || !this.lock,
                     func: () => {
                         this.show.add = true;
                     },
@@ -127,7 +127,7 @@ export default {
             templates: (state) => state.data_structure.templates,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },
@@ -142,7 +142,7 @@ export default {
             toggleEditor: "toggleEditor",
         }),
         templatesEnsureFolder() {
-            if (!this.ds_db || this.data_index == -1) return;
+            if (!this.cur_db || this.data_index == -1) return;
             this.lock = false;
             ipc.send(
                 "ensure-folder",

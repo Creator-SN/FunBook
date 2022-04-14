@@ -273,7 +273,7 @@ export default {
             items: (state) => state.data_structure.items,
             target: (state) => state.editor.target,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         mentionList() {
             return (value) => {
                 let result = [];

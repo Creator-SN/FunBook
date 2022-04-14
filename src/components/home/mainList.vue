@@ -392,6 +392,11 @@ export default {
     height: 100%;
     overflow: auto;
 
+    p
+    {
+        @include nowrap;
+    }
+
     .icon-block {
         @include HcenterVcenter;
 

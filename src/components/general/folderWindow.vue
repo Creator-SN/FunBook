@@ -1,6 +1,6 @@
 <template>
     <float-window-base
-        v-if="ds_db"
+        v-if="cur_db"
         v-model="thisValue"
         :title="title"
         :theme="theme"
@@ -29,7 +29,7 @@
             <fv-button
                 theme="dark"
                 background="rgba(0, 153, 204, 1)"
-                :disabled="!ds_db || !confirmDisable"
+                :disabled="!cur_db || !confirmDisable"
                 @click="confirm"
             >{{local('Confirm')}}</fv-button>
             <fv-button
@@ -79,7 +79,7 @@ export default {
             partitions: (state) => state.data_structure.partitions,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },

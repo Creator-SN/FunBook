@@ -78,7 +78,7 @@ export default {
             c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
     },
     methods: {
         ...mapMutations({

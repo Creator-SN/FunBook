@@ -7,7 +7,7 @@
             </div>
         </template>
         <template v-slot:control>
-            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="!value || name === '' || !ds_db" @click="rename">{{local('Confirm')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="!value || name === '' || !cur_db" @click="rename">{{local('Confirm')}}</fv-button>
             <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
         </template>
     </float-window-base>
@@ -57,7 +57,7 @@ export default {
             items: state => state.data_structure.items,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", 'ds_db']),
+        ...mapGetters(["local", 'cur_db']),
         v() {
             return this;
         },
@@ -67,7 +67,7 @@ export default {
             reviseDS: "reviseDS",
         }),
         async rename () {
-            if(!this.ds_db || !this.value || !this.item || this.name === '')
+            if(!this.cur_db || !this.value || !this.item || this.name === '')
                 return;
             let item = this.items.find(it => it.id === this.item.id);
             let _page = item.pages.find(it => it.id === this.value.id);

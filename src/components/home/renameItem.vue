@@ -49,7 +49,7 @@
             <fv-button
                 theme="dark"
                 background="rgba(0, 153, 204, 1)"
-                :disabled="!value || name === '' || !ds_db"
+                :disabled="!value || name === '' || !cur_db"
                 @click="confirm"
             >{{local('Confirm')}}</fv-button>
             <fv-button
@@ -117,7 +117,7 @@ export default {
             items: (state) => state.data_structure.items,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },
@@ -133,7 +133,7 @@ export default {
             reviseDS: "reviseDS",
         }),
         async confirm() {
-            if (!this.ds_db || !this.value || this.name === "") return;
+            if (!this.cur_db || !this.value || this.name === "") return;
             let _item = this.items.find((it) => it.id === this.value.id);
             _item.name = this.name;
             _item.labels = this.labels;

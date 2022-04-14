@@ -19,7 +19,7 @@
             <fv-button
                 theme="dark"
                 background="rgba(0, 153, 204, 1)"
-                :disabled="db_index < 0 || name === ''"
+                :disabled="thisDataIndex < 0 || name === ''"
                 @click="initDs"
             >{{local('Confirm')}}</fv-button>
             <fv-button
@@ -43,7 +43,7 @@ export default {
         show: {
             default: false,
         },
-        db_index: {
+        thisDataIndex: {
             default: null,
         },
     },
@@ -66,7 +66,7 @@ export default {
         ...mapState({
             data_path: (state) => state.data_path,
             language: (state) => state.language,
-            ds_db_list: (state) => state.ds_db_list,
+            dbList: (state) => state.dbList,
             theme: (state) => state.theme,
         }),
         ...mapGetters(["local"]),
@@ -79,8 +79,8 @@ export default {
             reviseDS: "reviseDS",
         }),
         initDs() {
-            if (this.db_index < 0 || this.name === "") return;
-            if (!this.data_path[this.db_index]) return;
+            if (this.thisDataIndex < 0 || this.name === "") return;
+            if (!this.data_path[this.thisDataIndex]) return;
             this.init_ds(this.$Guid(), this.name);
             this.thisShow = false;
         },
@@ -90,7 +90,7 @@ export default {
             ds.name = name;
             ds.createDate = this.$SDate.DateToString(new Date());
             this.reviseDS({
-                $index: this.db_index,
+                $index: this.thisDataIndex,
                 ...ds
             });
         },

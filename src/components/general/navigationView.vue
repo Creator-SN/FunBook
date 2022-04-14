@@ -6,8 +6,11 @@
         :theme="theme"
         :background="navigationViewBackground"
         :settingTitle="local('Setting')"
-        :expandWidth="350"
-        style="z-index: 1;"
+        :expandWidth="380"
+        mobileDisplay="768"
+        expandDisplay="768"
+        :flyout-display="1280"
+        style="z-index: 2;"
         @setting-click="Go(`/settings`)"
         @back="$Back"
     >
@@ -54,7 +57,11 @@
                                 class="tree-view-custom-item"
                                 @contextmenu="rightClick($event, x.item)"
                             >
-                                <emoji-callout :value="x.item.emoji" :theme="theme" @insert-emoji="reviseEmoji(x.item, $event)"></emoji-callout>
+                                <emoji-callout
+                                    :value="x.item.emoji"
+                                    :theme="theme"
+                                    @insert-emoji="reviseEmoji(x.item, $event)"
+                                ></emoji-callout>
                                 <!-- <p>{{x.item.emoji}}</p> -->
                                 <p
                                     v-show="!x.item.editable"
@@ -168,10 +175,13 @@
                 :posX="posX"
                 :posY="posY"
                 :rightMenuWidth="rightMenuWidth"
-            @update-height="rightMenuHeight = $event"
+                @update-height="rightMenuHeight = $event"
             >
                 <div>
-                    <span v-if="false" v-show="rightMenuItem.type === 'partition'">
+                    <span
+                        v-if="false"
+                        v-show="rightMenuItem.type === 'partition'"
+                    >
                         <i
                             class="ms-Icon ms-Icon--Add"
                             style="color: rgba(0, 153, 204, 1);"
@@ -232,12 +242,12 @@ export default {
         loading,
         navEmpty,
         rightMenu,
-        emojiCallout
+        emojiCallout,
     },
     props: {
         rightMenuWidth: {
             default: 200,
-        }
+        },
     },
     data() {
         return {
@@ -294,6 +304,7 @@ export default {
     },
     watch: {
         data_index() {
+            console.log("changed");
             this.syncDS();
         },
         groups() {
@@ -314,13 +325,13 @@ export default {
             partitions: (state) => state.data_structure.partitions,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         navigationViewBackground() {
             if (this.theme == "light") return "rgba(242, 242, 242, 0.8)";
             return "rgba(0, 0, 0, 0.8)";
         },
         SourceDisabled() {
-            if (this.ds_db === null) return true;
+            if (this.cur_db === null) return true;
             if (!this.ds_id) return true;
             return false;
         },
@@ -344,10 +355,10 @@ export default {
             reviseI18N: "reviseI18N",
         }),
         syncDS() {
-            if (!this.ds_db) return 0;
+            if (!this.cur_db) return 0;
             let _data_structure = JSON.parse(JSON.stringify(data_structure));
             for (let key in _data_structure) {
-                _data_structure[key] = this.ds_db.get(key).write();
+                _data_structure[key] = this.cur_db.ds[key];
                 if (!_data_structure[key]) {
                     let object = {
                         $index: this.data_index,

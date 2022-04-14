@@ -30,7 +30,7 @@
             <fv-button
                 theme="dark"
                 background="rgba(0, 153, 204, 1)"
-                :disabled="name === '' || !ds_db || currentChoosen.length > 1"
+                :disabled="name === '' || !cur_db || currentChoosen.length > 1"
                 @click="add"
             >{{local('Confirm')}}</fv-button>
             <fv-button
@@ -84,7 +84,7 @@ export default {
             items: (state) => state.data_structure.items,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },
@@ -96,7 +96,7 @@ export default {
             toggleEditor: "toggleEditor",
         }),
         async add() {
-            if (!this.ds_db || !this.item || this.name === "" || this.currentChoosen.length > 1) return;
+            if (!this.cur_db || !this.item || this.name === "" || this.currentChoosen.length > 1) return;
             let _page = JSON.parse(JSON.stringify(page));
             _page.id = this.$Guid();
             _page.name = this.name;

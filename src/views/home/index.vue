@@ -302,7 +302,7 @@ export default {
                     name: () => this.local("Add"),
                     icon: "Add",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null || !this.lock,
+                    disabled: () => this.cur_db === null || !this.lock,
                     func: () => {
                         this.show.add = true;
                     },
@@ -311,8 +311,14 @@ export default {
                     name: () => this.local("Import"),
                     icon: "Upload",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null || !this.lock,
-                    func: this.importPdf,
+                    disabled: () => this.cur_db === null || !this.lock,
+                    func: () => {
+                        this.$barWarning(
+                            this.local("Function is not supported yet."), {
+                                status: 'warning'
+                            }
+                        );
+                    },
                 },
                 {
                     name: () => {
@@ -322,7 +328,7 @@ export default {
                     },
                     icon: "MultiSelect",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    disabled: () => this.ds_db === null || !this.lock,
+                    disabled: () => this.cur_db === null || !this.lock,
                     func: () => {
                         this.editable ^= true;
                     },
@@ -380,7 +386,6 @@ export default {
                 renameItemPage: false,
                 metadata: false,
                 folder: false,
-                pdfImporter: false,
             },
             lock: true,
         };
@@ -401,14 +406,9 @@ export default {
             items: (state) => state.data_structure.items,
             groups: (state) => state.data_structure.groups,
             partitions: (state) => state.data_structure.partitions,
-            value: (state) => state.pdfImporter.value,
-            item: (state) => state.pdfImporter.item,
-            pdf_importer: (state) => state.pdfImporter.pdf_importer,
-            mode: (state) => state.pdfImporter.mode,
-            c: (state) => state.pdfImporter.c,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },
@@ -461,7 +461,6 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
             reviseEditor: "reviseEditor",
-            revisePdfImporter: "revisePdfImporter",
             toggleEditor: "toggleEditor",
         }),
         refreshFilterItems() {
@@ -476,7 +475,7 @@ export default {
             }
         },
         itemsEnsureFolder() {
-            if (!this.ds_db || this.data_index == -1) return;
+            if (!this.cur_db || this.data_index == -1) return;
             this.lock = false;
             // ipc.send(
             //     "ensure-folder",
@@ -701,7 +700,7 @@ export default {
             this.show.metadata = true;
         },
         reviseItemEmoji(item, emoji) {
-            if (!this.ds_db || !this.items) return;
+            if (!this.cur_db || !this.items) return;
             let _item = this.items.find((it) => it.id === item.id);
             _item.emoji = emoji;
             item.emoji = emoji;
@@ -711,7 +710,7 @@ export default {
             });
         },
         revisePageEmoji(item, page, emoji) {
-            if (!this.ds_db || !this.items) return;
+            if (!this.cur_db || !this.items) return;
             let _item = this.items.find(it => it.id === item.id);
             let _page = _item.pages.find(it => it.id === page.id);
             _page.emoji = emoji;

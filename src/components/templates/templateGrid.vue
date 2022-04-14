@@ -157,7 +157,7 @@ export default {
             show_editor: (state) => state.editor.show,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },

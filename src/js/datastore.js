@@ -9,26 +9,26 @@ export default {
  *
  */
 async function load_ds_file(onedriveObj, data_path = []) {
-    let db_array = [];
+    let dbXList = [];
     if (data_path.length == 0)
         return {
             status: 404,
             msg: 'data_path is empty.',
-            db_array: db_array
+            dbXList: dbXList
         };
     for (let url of data_path) {
-        let ds_db = null;
-        ds_db = new OnlineDB(onedriveObj);
-        await ds_db.initDB(url);
-        db_array.push({
+        let cur_db = null;
+        cur_db = new OnlineDB(onedriveObj);
+        await cur_db.initDB(url);
+        dbXList.push({
             status: 200,
             msg: 'success.',
-            db: ds_db
+            db: cur_db
         });
     }
     return {
         status: 200,
         msg: 'success.',
-        db_array: db_array
+        dbXList: dbXList
     };
 }

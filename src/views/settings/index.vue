@@ -16,7 +16,7 @@
                     @click="show.addDS = true"
                 >{{local('Add New Source')}}</fv-button>
                 <fv-list-view
-                    :value="dbList"
+                    :value="thisDBList"
                     :theme="theme"
                     style="width: 100%; height: auto; margin-top: 15px;"
                     @chooseItem="switchDSDB($event.item)"
@@ -25,16 +25,6 @@
                         <div class="list-view-item">
                             <i class="ms-Icon ms-Icon--Link"></i>
                             <p class="item-name">{{x.item.name}}</p>
-                            <fv-button
-                                v-show="x.item.status == 502 || SourceIndexDisabled(x.index)"
-                                :theme="theme"
-                                class="control-btn"
-                                background="rgba(255, 200, 0, 1)"
-                                :title="local(`Can't find data_structure.json on this source, shall we init new one ?`)"
-                                @click="showInitDS(x.index)"
-                            >
-                                <i class="ms-Icon ms-Icon--EraseTool"></i>
-                            </fv-button>
                             <fv-button
                                 :theme="theme"
                                 class="control-btn"
@@ -78,26 +68,18 @@
         <add-ds
             :show.sync="show.addDS"
             :theme="theme"
-            @finished="addSourceCallback"
         >
         </add-ds>
-        <init-ds
-            :show.sync="show.initDS"
-            :theme="theme"
-            :db_index="db_index"
-        ></init-ds>
     </div>
 </template>
 
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
 import addDs from "@/components/settings/addDs.vue";
-import initDs from "@/components/settings/initDs.vue";
 
 export default {
     components: {
-        addDs,
-        initDs,
+        addDs
     },
     data() {
         return {
@@ -106,11 +88,9 @@ export default {
                 { key: "en", text: "English" },
                 { key: "cn", text: "简体中文" },
             ],
-            dbList: [],
-            db_index: -1,
+            thisDataIndex: -1,
             show: {
                 addDS: false,
-                initDS: false,
             },
             lock: {
                 switchDSDB: true,
@@ -120,39 +100,50 @@ export default {
     watch: {
         $route() {
             this.languageInit();
-            this.dataSourceSync();
         },
         language() {
             this.languageInit();
-        },
-        "show.initDS"() {
-            this.dataSourceSync();
-        },
+        }
     },
     computed: {
         ...mapState({
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
-            ds_db_list: (state) => state.ds_db_list,
+            dbList: (state) => state.dbList,
             language: (state) => state.language,
             theme: (state) => state.theme,
         }),
-        ...mapGetters(["local", "ds_db"]),
+        ...mapGetters(["local", "cur_db"]),
         v() {
             return this;
         },
+        thisDBList () {
+            let pathList = this.data_path;
+            let thisDBList = [];
+            pathList.forEach((el, idx) => {
+                thisDBList.push({
+                    key: idx,
+                    name: pathList[idx],
+                    path: pathList[idx],
+                    index: idx,
+                    choosen: idx === this.data_index,
+                    disabled: () => el.status === 500 || !this.lock.switchDSDB
+                });
+            });
+            return thisDBList;
+        },
         SourceIndexDisabled() {
             return (index) => {
-                if (!this.ds_db_list[index]) return true;
-                let id = this.ds_db_list[index].get("id").write();
-                return id === null;
+                if (!this.dbList[index]) return true;
+                // let id = this.dbList[index].get("id").write();
+                // return id === null;
+                return false;
             };
         },
     },
     mounted() {
         this.languageInit();
-        this.dataSourceSync();
     },
     methods: {
         ...mapMutations({
@@ -173,73 +164,6 @@ export default {
                 language: item.key,
             });
         },
-        async dataSourceSync() {
-            // 此函数初始化数据源的DB //
-            // 同时也会初始化ListView列表项目 //
-            let pathList = this.data_path;
-            let db_array_result = await this.$load_ds_file(this.onedrive, pathList);
-            if (db_array_result.status == 404 && !this.init_status) {
-                this.$barWarning(
-                    this.local(
-                        "There is no source, please add a data source to getting started."
-                    ),
-                    {
-                        status: "warning",
-                        autoClose: -1,
-                    }
-                );
-                return;
-            }
-            let db_array = db_array_result.db_array;
-            let dbList = [];
-            let ds_db_list = [];
-            db_array.forEach((el, idx) => {
-                dbList.push({
-                    key: idx,
-                    name: pathList[idx],
-                    path: pathList[idx],
-                    choosen: idx === this.data_index,
-                    status: el.status,
-                    msg: el.msg,
-                    disabled: () => el.status === 500 || !this.lock.switchDSDB,
-                    db: el.db,
-                });
-                ds_db_list.push(el.db);
-            });
-            this.dbList = dbList;
-            this.reviseData({
-                ds_db_list: ds_db_list,
-            });
-        },
-        async addSourceCallback() {
-            // let path = (
-            //     await dialog.showOpenDialog({
-            //         properties: ["openDirectory"],
-            //     })
-            // ).filePaths[0];
-            // if (!path) return;
-            // let pathList = this.data_path;
-            // if (!pathList.find((url) => url === path)) pathList.push(path);
-            // await this.reviseConfig({
-            //     v: this,
-            //     data_path: pathList,
-            // });
-            setTimeout(() => {
-                this.dataSourceSync();
-            }, 6000);
-            // let index = pathList.indexOf(path);
-            // if (!this.SourceIndexDisabled(index)) {
-            //     if (this.data_index === index)
-            //         await this.reviseConfig({
-            //             v: this,
-            //             data_index: -1,
-            //         });
-            //     this.reviseConfig({
-            //         v: this,
-            //         data_index: index,
-            //     });
-            // }
-        },
         switchDSDB(item) {
             this.lock.switchDSDB = false;
             let index = this.data_path.indexOf(item.path);
@@ -248,10 +172,6 @@ export default {
                 data_index: index,
             });
             this.lock.switchDSDB = true;
-        },
-        showInitDS(db_index) {
-            this.db_index = db_index;
-            this.show.initDS = true;
         },
         removeDS(db_item) {
             this.$infoBox(
@@ -266,7 +186,6 @@ export default {
                         let url = db_item.path;
                         let index = this.data_path.indexOf(url);
                         this.data_path.splice(index, 1);
-                        this.dataSourceSync();
                     },
                     cancel: () => {},
                 }
@@ -353,8 +272,8 @@ export default {
                 }
 
                 .control-btn {
-                    width: 40px;
-                    height: 40px;
+                    width: 35px;
+                    height: 35px;
                     margin-right: 5px;
                 }
             }
