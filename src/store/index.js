@@ -12,6 +12,7 @@ export default new Vuex.Store({
         language: 'en',
         theme: 'light',
         onedrive: null,
+        progress: 0,
         // ds //
         data_structure: {
             id: null,

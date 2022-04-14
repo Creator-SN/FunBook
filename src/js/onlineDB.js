@@ -1,10 +1,12 @@
 export class OnlineDB {
-    constructor(oneDrive) {
+    constructor(oneDrive, progressUpdater=null) {
         this.oneDrive = oneDrive;
+        if(progressUpdater) this.progressUpdater = progressUpdater;
         this.init = false;
     }
 
     async initDB(path) {
+        this.key = path;
         this.path = path;
         if(this.path.indexOf('/') < 0)
             this.path = this.path.replace(/\\/g, '/');
@@ -12,6 +14,7 @@ export class OnlineDB {
             this.path = this.path.slice(1);
             
         let res = await this.oneDrive.getMyDrivePathItemChildren(this.path);
+        this.updateProgress(30);
 
         let targetChildren = res.value;
         let dsObj = targetChildren.find(it => {
@@ -20,12 +23,15 @@ export class OnlineDB {
             if (it.file.mimeType !== 'application/json') return false;
             return true;
         });
+        this.updateProgress(80);
         dsObj = JSON.parse(JSON.stringify(dsObj));
         let dsBlob = await this.oneDrive.getMyDriveItemFile(dsObj);
         let ds = await this.readAsText(dsBlob);
+        this.updateProgress(100);
         ds = JSON.parse(ds);
         this.ds = ds;
         this.init = true;
+        this.updateProgress(101);
     }
 
     readAsText(blob) {
@@ -49,5 +55,9 @@ export class OnlineDB {
             let res = await this.oneDrive.getMyDrivePathItem(url);
         let fileBlob = await this.oneDrive.getMyDriveItemFile(res);
         return await this.readAsText(fileBlob);
+    }
+
+    updateProgress (value) {
+        if(this.progressUpdater) this.progressUpdater(value);
     }
 }

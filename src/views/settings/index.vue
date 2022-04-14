@@ -12,6 +12,7 @@
                 <fv-button
                     :theme="theme"
                     icon="OneDriveAdd"
+                    :is-box-shadow="true"
                     style="width: 150px;"
                     @click="show.addDS = true"
                 >{{local('Add New Source')}}</fv-button>
@@ -19,10 +20,10 @@
                     :value="thisDBList"
                     :theme="theme"
                     style="width: 100%; height: auto; margin-top: 15px;"
-                    @chooseItem="switchDSDB($event.item)"
+                    @chooseItem="switchDSDB($event)"
                 >
                     <template v-slot:listItem="x">
-                        <div class="list-view-item">
+                        <div class="list-view-item" :class="[{choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index)}]">
                             <img draggable="false" class="icon-img" :src="img.OneDrive" alt="">
                             <p class="item-name">{{x.item.name}}</p>
                             <fv-button
@@ -43,6 +44,7 @@
                     :theme="theme"
                     fontSize="16"
                     borderRadius="50"
+                    :is-box-shadow="true"
                     style="width: 40px; height: 40px;"
                     :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
                     @click="toggleTheme(v)"
@@ -141,8 +143,8 @@ export default {
         SourceIndexDisabled() {
             return (index) => {
                 if (!this.dbList[index]) return true;
-                if(this.data_path[index] !== this.dbList[index].path) return true;
-                return this.dbList[index].init;
+                if(this.data_path[index] !== this.dbList[index].key) return true;
+                return !this.dbList[index].init;
             };
         },
     },
@@ -168,9 +170,10 @@ export default {
                 language: item.key,
             });
         },
-        switchDSDB(item) {
+        switchDSDB(event) {
+            let index = this.data_path.indexOf(event.item.path);
+            if(this.SourceIndexDisabled(index)) return;
             this.lock.switchDSDB = false;
-            let index = this.data_path.indexOf(item.path);
             this.reviseConfig({
                 v: this,
                 data_index: index,
@@ -266,8 +269,21 @@ export default {
             .list-view-item {
                 position: relative;
                 width: 100%;
+                padding-left: 5px;
+                border-left: rgba(0, 98, 158, 0) solid 5px;
+                border-radius: 3px;
                 display: flex;
                 align-items: center;
+
+                &.disabled
+                {
+                    filter: grayscale(100%);
+                }
+
+                &.choosen
+                {
+                    border-color: rgba(0, 98, 158, 0.6);
+                }
 
                 .icon-img
                 {

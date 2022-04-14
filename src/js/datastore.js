@@ -8,7 +8,7 @@ export default {
  * 初始化源数据数据库文件
  *
  */
-async function load_ds_file(onedriveObj, data_path = []) {
+async function load_ds_file(onedriveObj, data_path = [], progressUpdater = null) {
     let dbXList = [];
     if (data_path.length == 0)
         return {
@@ -18,7 +18,7 @@ async function load_ds_file(onedriveObj, data_path = []) {
         };
     for (let url of data_path) {
         let cur_db = null;
-        cur_db = new OnlineDB(onedriveObj);
+        cur_db = new OnlineDB(onedriveObj, progressUpdater);
         await cur_db.initDB(url);
         dbXList.push({
             status: 200,

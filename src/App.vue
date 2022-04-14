@@ -12,11 +12,13 @@
             </div>
         </div>
         <editor-container></editor-container>
+        <progress-bar></progress-bar>
     </div>
 </template>
 
 <script>
 import i18n from "@/js/i18n.js";
+import progressBar from "@/components/general/progressbar.vue";
 import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
@@ -26,6 +28,7 @@ import { client, OneDrive } from "./libs/msla";
 export default {
     name: "App",
     components: {
+        progressBar,
         navigationView,
         editorContainer,
     },
@@ -74,7 +77,7 @@ export default {
         },
         async syncDSDB() {
             let pathList = this.data_path;
-            let oneDriveDBXListResponse = await this.$load_ds_file(this.onedrive, pathList);
+            let oneDriveDBXListResponse = await this.$load_ds_file(this.onedrive, pathList, this.updateProgress);
             if (oneDriveDBXListResponse.status == 404 && !this.init_status) {
                 this.$barWarning(
                     this.local(
@@ -94,6 +97,11 @@ export default {
             });
             this.reviseData({
                 dbList: dbList,
+            });
+        },
+        updateProgress (value) {
+            this.reviseConfig({
+                progress: value
             });
         },
         Go(path) {
