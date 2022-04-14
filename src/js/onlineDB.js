@@ -1,44 +1,31 @@
 export class OnlineDB {
-    constructor(onedriveObj) {
-        this.onedriveObj = onedriveObj;
+    constructor(oneDrive) {
+        this.oneDrive = oneDrive;
+        this.init = false;
     }
 
     async initDB(path) {
         this.path = path;
-        let pathList = this.path.split('/');
-        pathList = pathList.slice(1);
-        this.pathArray = [];
-        for (let i = 0; i < pathList.length; i++) {
-            let el = pathList[i];
-            let res = {};
-            if (this.pathArray.length === 0) {
-                res = await this.onedriveObj.getMyDriveRootChildren();
-            }
-            else {
-                res = await this.onedriveObj.getMyDriveItemChildren(this.pathArray[i - 1].id);
-            }
-            let items = res.value;
-            let item = items.find(it => {
-                if (it.name !== el) return false;
-                if (!it.folder) return false;
-                return true;
-            });
-            this.pathArray.push(item);
-        }
+        if(this.path.indexOf('/') < 0)
+            this.path = this.path.replace(/\\/g, '/');
+        if(this.path[0] === '/')
+            this.path = this.path.slice(1);
+            
+        let res = await this.oneDrive.getMyDrivePathItemChildren(this.path);
 
-        let lastRes = await this.onedriveObj.getMyDriveItemChildren(this.pathArray[this.pathArray.length - 1].id);
-        let lastChildren = lastRes.value;
-        let dsObj = lastChildren.find(it => {
+        let targetChildren = res.value;
+        let dsObj = targetChildren.find(it => {
             if (it.name !== 'data_structure.json') return false;
             if (!it.file) return false;
             if (it.file.mimeType !== 'application/json') return false;
             return true;
         });
         dsObj = JSON.parse(JSON.stringify(dsObj));
-        let dsBlob = await this.onedriveObj.getMyDriveItemFile(dsObj);
+        let dsBlob = await this.oneDrive.getMyDriveItemFile(dsObj);
         let ds = await this.readAsText(dsBlob);
         ds = JSON.parse(ds);
         this.ds = ds;
+        this.init = true;
     }
 
     readAsText(blob) {
@@ -49,5 +36,18 @@ export class OnlineDB {
                 resolve(data.target.result);
             }
         });
+    }
+
+    async getFileInfo(url) {
+        if(url[0] === "/") url = url.slice(1);
+            let res = await this.oneDrive.getMyDrivePathItem(url);
+        return res;
+    }
+
+    async readFile(url) {
+        if(url[0] === "/") url = url.slice(1);
+            let res = await this.oneDrive.getMyDrivePathItem(url);
+        let fileBlob = await this.oneDrive.getMyDriveItemFile(res);
+        return await this.readAsText(fileBlob);
     }
 }

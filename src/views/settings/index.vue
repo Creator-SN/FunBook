@@ -23,7 +23,7 @@
                 >
                     <template v-slot:listItem="x">
                         <div class="list-view-item">
-                            <i class="ms-Icon ms-Icon--Link"></i>
+                            <img draggable="false" class="icon-img" :src="img.OneDrive" alt="">
                             <p class="item-name">{{x.item.name}}</p>
                             <fv-button
                                 :theme="theme"
@@ -77,6 +77,8 @@
 import { mapMutations, mapState, mapGetters } from "vuex";
 import addDs from "@/components/settings/addDs.vue";
 
+import OneDrive from "@/assets/settings/OneDrive.svg";
+
 export default {
     components: {
         addDs
@@ -89,6 +91,9 @@ export default {
                 { key: "cn", text: "简体中文" },
             ],
             thisDataIndex: -1,
+            img: {
+                OneDrive
+            },
             show: {
                 addDS: false,
             },
@@ -136,9 +141,8 @@ export default {
         SourceIndexDisabled() {
             return (index) => {
                 if (!this.dbList[index]) return true;
-                // let id = this.dbList[index].get("id").write();
-                // return id === null;
-                return false;
+                if(this.data_path[index] !== this.dbList[index].path) return true;
+                return this.dbList[index].init;
             };
         },
     },
@@ -264,6 +268,12 @@ export default {
                 width: 100%;
                 display: flex;
                 align-items: center;
+
+                .icon-img
+                {
+                    width: 20px;
+                    height: auto;
+                }
 
                 .item-name {
                     margin-left: 15px;

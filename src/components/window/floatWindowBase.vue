@@ -66,7 +66,7 @@ export default {
 
 <style lang="scss">
 .web-window-base-container {
-    position: fixed;
+    position: absolute;
     left: 0px;
     top: 0px;
     width: 100%;

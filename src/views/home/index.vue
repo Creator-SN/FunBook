@@ -283,6 +283,8 @@ import folderWindow from "@/components/general/folderWindow.vue";
 import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
+const path = require("path");
+
 export default {
     components: {
         addItem,
@@ -394,13 +396,11 @@ export default {
         $route() {
             this.itemsEnsureFolder();
             this.refreshFilterItems();
-        },
-        c() {
-            this.refreshFilterItems();
-        },
+        }
     },
     computed: {
         ...mapState({
+            onedrive: state => state.onedrive,
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             items: (state) => state.data_structure.items,
@@ -600,17 +600,14 @@ export default {
             });
             this.toggleEditor(true);
         },
-        openFile(fileName) {
-            console.log(fileName);
-            // let url = path.join(
-            //     this.data_path[this.data_index],
-            //     "root/items",
-            //     fileName
-            // );
-            // ipc.send("open-file", url);
-            // ipc.on("open-file-callback", (event, data) => {
-            //     console.log(data);
-            // });
+        async openFile(fileName) {
+            let url = path.join(
+                this.data_path[this.data_index],
+                "root/items",
+                fileName
+            );
+            let res = await this.cur_db.getFileInfo(url);
+            this.$Jump(res.webUrl);
         },
         copyItemsToPartitions(partitions_id) {
             let t = [].concat(this.groups);

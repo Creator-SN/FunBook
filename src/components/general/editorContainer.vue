@@ -109,6 +109,7 @@
                 ></fv-Breadcrumb>
             </div>
             <power-editor
+                v-show="lock.loading"
                 :value="content"
                 :placeholder="local('Write something ...')"
                 :editable="!readonly"
@@ -118,7 +119,7 @@
                     theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
                 "
                 :contentMaxWidth="expandContent ? '99999px' : '900px'"
-                :mobileDisplayWidth="0"
+                :mobileDisplayWidth="768"
                 :mentionItemAttr="editorMentionItemAttr"
                 ref="editor"
                 :style="{height: `calc(100% - ${showNav ? 80 : 40}px)`, 'font-size': `${fontSize}px`}"
@@ -131,6 +132,16 @@
                 @save-json="saveContent"
                 @click.native="show.quickNav = false"
             ></power-editor>
+            <div
+                v-show="!lock.loading"
+                class="loading-block"
+            >
+                <fv-progress-ring
+                    loading="true"
+                    r="20"
+                    borderWidth="5"
+                ></fv-progress-ring>
+            </div>
             <div
                 class="bottom-control"
                 :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]"
@@ -200,6 +211,8 @@ import { mapMutations, mapState, mapGetters } from "vuex";
 
 import addItemPage from "@/components/home/addItemPage.vue";
 
+const path = require("path");
+
 export default {
     components: {
         addItemPage,
@@ -231,6 +244,9 @@ export default {
                     }
                 },
                 headerForeground: "rgba(0, 120, 212, 1)",
+            },
+            lock: {
+                loading: true,
             },
             show: {
                 quickNav: false,
@@ -342,9 +358,9 @@ export default {
                 return result;
             };
         },
-        showNav () {
-            return this.type === 'item' && this.item.name && this.target.name;
-        }
+        showNav() {
+            return this.type === "item" && this.item.name && this.target.name;
+        },
     },
     mounted() {
         this.ShortCutInit();
@@ -381,33 +397,29 @@ export default {
             });
         },
         async refreshContent() {
-            // if (!this.type || !this.target.id) return;
-            // let folder =
-            //     this.type === "template" ? "root/templates" : "root/items";
-            // if (this.type === "item") {
-            //     if (!this.item) return;
-            //     folder = path.join(folder, this.item.id);
-            // }
-            // let url = path.join(
-            //     this.data_path[this.data_index],
-            //     folder,
-            //     `${this.target.id}.json`
-            // );
-            // ipc.send("read-file", {
-            //     id: "editor",
-            //     path: url,
-            // });
-            // let content = await new Promise((resolve) => {
-            //     ipc.on(`read-file-editor`, (event, data) => {
-            //         resolve(data);
-            //     });
-            // });
-            // try {
-            //     this.content = JSON.parse(content);
-            // } catch (e) {
-            //     this.content = content;
-            // }
-            // if (this.content === "") this.$refs.editor.focus();
+            if (!this.lock.loading) return;
+            this.lock.loading = false;
+            if (!this.type || !this.target.id) return;
+            let folder =
+                this.type === "template" ? "root/templates" : "root/items";
+            if (this.type === "item") {
+                if (!this.item) return;
+                folder = path.join(folder, this.item.id);
+            }
+            let url = path.join(
+                this.data_path[this.data_index],
+                folder,
+                `${this.target.id}.json`
+            );
+            let content = await this.cur_db.readFile(url);
+            try {
+                this.content = JSON.parse(content);
+                this.lock.loading = true;
+            } catch (e) {
+                this.content = content;
+                this.lock.loading = true;
+            }
+            if (this.content === "") this.$refs.editor.focus();
         },
         editorSave() {
             if (this.auto_save && this.show_editor && this.unsave) {
@@ -440,6 +452,7 @@ export default {
             // this.unsave = false;
         },
         openEditor(item, page) {
+            if (!this.lock.loading) return;
             if (this.type === "item" && this.item && this.target) {
                 this.history.push({
                     type: this.type,
@@ -479,14 +492,18 @@ export default {
                 history: this.history,
             });
         },
-        scrollToTop (top) {
-            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+        scrollToTop(top) {
+            let editorContent = this.$el.querySelectorAll(
+                ".tip-tap-editor-container"
+            )[0];
             console.log(editorContent);
-            if(!editorContent) return;
+            if (!editorContent) return;
             editorContent.scrollTop = top;
         },
-        getScrollTop () {
-            let editorContent = this.$el.querySelectorAll(".tip-tap-editor-container")[0];
+        getScrollTop() {
+            let editorContent = this.$el.querySelectorAll(
+                ".tip-tap-editor-container"
+            )[0];
             return editorContent.scrollTop ? editorContent.scrollTop : 0;
         },
         close() {
@@ -580,6 +597,15 @@ export default {
 
         display: flex;
         align-items: center;
+    }
+
+    .loading-block {
+        @include HcenterVcenter;
+
+        position: relative;
+        width: 100%;
+        height: calc(100% - 40px);
+        flex: 1;
     }
 
     .bottom-control {
@@ -721,6 +747,12 @@ export default {
         p {
             line-height: 2;
         }
+    }
+}
+
+@media screen and (max-width: $mobile-display) {
+    .ikfb-editor-container {
+        width: calc(100% - 50px);
     }
 }
 </style>
