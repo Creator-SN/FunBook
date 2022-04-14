@@ -17,6 +17,7 @@
 </template>
 
 <script>
+/* eslint-disabled */
 import { client, OneDrive } from "@/libs/msla";
 // import { OnlineDB } from "@/js/onlineDB.js";
 
@@ -48,7 +49,6 @@ export default {
         async getRoot() {
             let onedrive = new OneDrive(client);
             let root = await onedrive.getMyDriveItemChildren("B5C6E21C3CAF1327!1528");
-            console.log(root);
         }
     },
 };
