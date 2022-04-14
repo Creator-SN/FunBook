@@ -13,11 +13,11 @@ const routes = [
         name: "Home",
         component: () => AsyncLoad(import("@/views/home"))
     },
-    // {
-    //     path: "/partitions/:id",
-    //     name: "Home",
-    //     component: () => AsyncLoad(import("@/views/home"))
-    // },
+    {
+        path: "/partitions/:id",
+        name: "Home",
+        component: () => AsyncLoad(import("@/views/home"))
+    },
     // {
     //     path: "/templates",
     //     name: "Templates",
@@ -27,6 +27,11 @@ const routes = [
         path: "/settings",
         name: "Settings",
         component: () => AsyncLoad(import("@/views/settings"))
+    },
+    {
+        path: "/dev",
+        name: "Dev",
+        component: () => AsyncLoad(import("@/views/dev"))
     }
 ];
 

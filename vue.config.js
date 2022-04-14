@@ -5,5 +5,8 @@ module.exports = {
                 prependData: `@import "@/style/global.scss";`
             }
         }
+    },
+    devServer: {
+        port: 8080
     }
 };

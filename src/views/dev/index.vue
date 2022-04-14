@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import { client, OneDrive } from "./libs/msla";
+import { client, OneDrive } from "@/libs/msla";
 // import { OnlineDB } from "@/js/onlineDB.js";
 
 export default {
