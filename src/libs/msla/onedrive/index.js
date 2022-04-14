@@ -62,7 +62,9 @@ var OneDriveEndpoint = {
     MyDriveItemChildren: "/me/drive/items/${itemId}/children",
     MyDriveItemFile: "/me/drive/items/${itemId}/content",
     MyDriveItemUploadContent: "/me/drive/items/${parentItemId}:/${filename}:/content",
-    MyDriveItemLargeFileContentSession: "/me/drive/items/${parentItemId}:/${filename}:/createUploadSession"
+    MyDriveItemLargeFileContentSession: "/me/drive/items/${parentItemId}:/${filename}:/createUploadSession",
+    MyDrivePathItem: "/me/drive/root:/${path}",
+    MyDrivePathItemChildren: "/me/drive/root:/${path}:/children"
 };
 /**
  * OneDrive API
@@ -120,6 +122,26 @@ var OneDrive = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0: return [4 /*yield*/, this.client.api(render_1.StringRender.render(OneDriveEndpoint.MyDriveItem, { itemId: itemId })).get()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    OneDrive.prototype.getMyDrivePathItem = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.api(render_1.StringRender.render(OneDriveEndpoint.MyDrivePathItem, { path: path })).get()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    OneDrive.prototype.getMyDrivePathItemChildren = function (path) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.client.api(render_1.StringRender.render(OneDriveEndpoint.MyDrivePathItemChildren, { path: path })).get()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });

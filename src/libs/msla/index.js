@@ -50,9 +50,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.msla = exports.client = void 0;
+exports.user = exports.onedrive = exports.msla = exports.client = void 0;
 var msal_browser_1 = require("@azure/msal-browser");
 var microsoft_graph_client_1 = require("@microsoft/microsoft-graph-client");
+var onedrive_1 = require("./onedrive");
+var user_1 = require("./user");
 var MSLA_CONFIG = {
     auth: {
         clientId: "04504778-db6b-4ac9-8685-94f3996766d4"
@@ -87,6 +89,7 @@ var MSLA_CONFIG = {
 };
 var msla = new msal_browser_1.PublicClientApplication(MSLA_CONFIG);
 exports.msla = msla;
+var permission = ["User.Read", "Files.ReadWrite.All"];
 var SlientProvider = {
     getAccessToken: function () { return __awaiter(void 0, void 0, void 0, function () {
         var accounts, result_1, _a, result;
@@ -95,13 +98,12 @@ var SlientProvider = {
                 case 0:
                     accounts = msla.getAllAccounts();
                     if (!(accounts.length > 0)) return [3 /*break*/, 5];
-                    msla.setActiveAccount(accounts[0]);
                     result_1 = null;
                     _b.label = 1;
                 case 1:
                     _b.trys.push([1, 3, , 4]);
                     return [4 /*yield*/, msla.acquireTokenSilent({
-                            scopes: ["User.Read", "Files.ReadWrite.All"]
+                            scopes: permission
                         })];
                 case 2:
                     result_1 = _b.sent();
@@ -114,7 +116,7 @@ var SlientProvider = {
                         return [2 /*return*/, result_1.accessToken];
                     _b.label = 5;
                 case 5: return [4 /*yield*/, msla.loginPopup({
-                        scopes: ["User.Read", "Files.ReadWrite.All"]
+                        scopes: permission
                     })];
                 case 6:
                     result = _b.sent();
@@ -129,5 +131,10 @@ var options = {
 };
 var client = microsoft_graph_client_1.Client.initWithMiddleware(options);
 exports.client = client;
-exports["default"] = { client: client, msla: msla };
+var onedrive = new onedrive_1.OneDrive(client);
+exports.onedrive = onedrive;
+var user = new user_1.User(client, msla);
+exports.user = user;
+exports["default"] = { client: client, msla: msla, onedrive: onedrive, user: user };
 __exportStar(require("./onedrive"), exports);
+__exportStar(require("./user"), exports);

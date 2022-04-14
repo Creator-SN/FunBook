@@ -15,6 +15,8 @@ declare class OneDrive {
     getMyDriveRootChildren(): Promise<any>;
     getMyDriveItemChildren(itemId: string): Promise<any>;
     getMyDriveItem(itemId: string): Promise<any>;
+    getMyDrivePathItem(path: string): Promise<any>;
+    getMyDrivePathItemChildren(path: string): Promise<any>;
     postMyDriveFolder(itemId: string, folder?: Folder): Promise<any>;
     getMyDriveItemFile(item: any): Promise<any>;
     deleteMyDriveItem(itemId: string): Promise<void>;
