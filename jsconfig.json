@@ -1,7 +1,8 @@
 {
     "include": [
         "./src/**/*",
-        "src/libs/msla/index.d.ts",
+        "src/libs/msal/index.d.ts",
+        "global.d.ts"
     ],
     "compilerOptions": {
         "target": "ES6",

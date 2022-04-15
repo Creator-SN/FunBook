@@ -1,16 +1,16 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
     if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
+        desc = { enumerable: true, get: function () { return m[k]; } };
     }
     Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
+}) : (function (o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
 }));
-var __exportStar = (this && this.__exportStar) || function(m, exports) {
+var __exportStar = (this && this.__exportStar) || function (m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -23,8 +23,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    var _ = { label: 0, sent: function () { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function () { return this; }), g;
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
@@ -50,12 +50,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-exports.user = exports.onedrive = exports.msla = exports.client = void 0;
+exports.user = exports.onedrive = exports.msal = exports.client = void 0;
 var msal_browser_1 = require("@azure/msal-browser");
 var microsoft_graph_client_1 = require("@microsoft/microsoft-graph-client");
 var onedrive_1 = require("./onedrive");
 var user_1 = require("./user");
-var MSLA_CONFIG = {
+var MSAL_CONFIG = {
     auth: {
         clientId: "04504778-db6b-4ac9-8685-94f3996766d4"
     },
@@ -87,43 +87,48 @@ var MSLA_CONFIG = {
         }
     }
 };
-var msla = new msal_browser_1.PublicClientApplication(MSLA_CONFIG);
-exports.msla = msla;
-var permission = ["User.Read", "Files.ReadWrite.All"];
+var msal = new msal_browser_1.PublicClientApplication(MSAL_CONFIG);
+exports.msal = msal;
+var scopes = ["User.Read", "Files.ReadWrite.All"];
 var SlientProvider = {
-    getAccessToken: function () { return __awaiter(void 0, void 0, void 0, function () {
-        var accounts, result_1, _a, result;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    accounts = msla.getAllAccounts();
-                    if (!(accounts.length > 0)) return [3 /*break*/, 5];
-                    result_1 = null;
-                    _b.label = 1;
-                case 1:
-                    _b.trys.push([1, 3, , 4]);
-                    return [4 /*yield*/, msla.acquireTokenSilent({
-                            scopes: permission
+    getAccessToken: function () {
+        return __awaiter(void 0, void 0, void 0, function () {
+            var accounts, result_1, _a, result;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        accounts = msal.getAllAccounts();
+                        if (!(accounts.length > 0)) return [3 /*break*/, 5];
+                        result_1 = null;
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, msal.acquireTokenSilent({
+                            scopes: scopes
                         })];
-                case 2:
-                    result_1 = _b.sent();
-                    return [3 /*break*/, 4];
-                case 3:
-                    _a = _b.sent();
-                    return [3 /*break*/, 4];
-                case 4:
-                    if (result_1 != null && result_1.expiresOn != null && result_1.expiresOn > new Date())
-                        return [2 /*return*/, result_1.accessToken];
-                    _b.label = 5;
-                case 5: return [4 /*yield*/, msla.loginPopup({
-                        scopes: permission
-                    })];
-                case 6:
-                    result = _b.sent();
-                    return [2 /*return*/, result.accessToken];
-            }
+                    case 2:
+                        result_1 = _b.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _a = _b.sent();
+                        return [3 /*break*/, 4];
+                    case 4:
+                        if (result_1 != null && result_1.expiresOn != null && result_1.expiresOn > new Date())
+                            return [2 /*return*/, result_1.accessToken];
+                        _b.label = 5;
+                    case 5: return [4 /*yield*/, msal.handleRedirectPromise()];
+                    case 6:
+                        result = _b.sent();
+                        if (!(result == null)) return [3 /*break*/, 8];
+                        return [4 /*yield*/, msal.loginRedirect({ scopes: scopes, redirectStartPage: window.location.href })];
+                    case 7:
+                        _b.sent();
+                        return [2 /*return*/, ""];
+                    case 8: return [2 /*return*/, result.accessToken];
+                }
+            });
         });
-    }); }
+    }
 };
 var options = {
     authProvider: SlientProvider,
@@ -133,8 +138,8 @@ var client = microsoft_graph_client_1.Client.initWithMiddleware(options);
 exports.client = client;
 var onedrive = new onedrive_1.OneDrive(client);
 exports.onedrive = onedrive;
-var user = new user_1.User(client, msla);
+var user = new user_1.User(client, msal);
 exports.user = user;
-exports["default"] = { client: client, msla: msla, onedrive: onedrive, user: user };
+exports["default"] = { client: client, msal: msal, onedrive: onedrive, user: user };
 __exportStar(require("./onedrive"), exports);
 __exportStar(require("./user"), exports);

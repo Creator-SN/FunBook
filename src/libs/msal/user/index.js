@@ -37,25 +37,43 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 exports.User = void 0;
-var permission = ["User.Read", "Files.ReadWrite.All"];
+var scopes = ["User.Read", "Files.ReadWrite.All"];
 var UserEndpoint = {
     AvatarMedadata: "/me/photo",
     Avatar: "/me/photo/$value",
     Profile: "/me"
 };
 var User = /** @class */ (function () {
-    function User(client, mlsa) {
+    function User(client, msal) {
         this.client = client;
-        this.msla = mlsa;
+        this.msal = msal;
     }
-    User.prototype.login = function () {
+    User.prototype.login = function (type) {
         return __awaiter(this, void 0, void 0, function () {
+            var result;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.msla.loginPopup({
-                            scopes: permission
-                        })];
+                    case 0:
+                        if (!(type === "popup")) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.msal.loginPopup({
+                                scopes: scopes
+                            })];
                     case 1: return [2 /*return*/, _a.sent()];
+                    case 2:
+                        if (!(type === "redirect")) return [3 /*break*/, 6];
+                        return [4 /*yield*/, this.msal.handleRedirectPromise()];
+                    case 3:
+                        result = _a.sent();
+                        if (!(result == null)) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.msal.loginRedirect({
+                                scopes,
+                                redirectStartPage:window.location.href 
+                            })];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5: return [2 /*return*/, result];
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -93,21 +111,21 @@ var User = /** @class */ (function () {
     User.prototype.getAccounts = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.msla.getAllAccounts()];
+                return [2 /*return*/, this.msal.getAllAccounts()];
             });
         });
     };
     User.prototype.getActiveAccount = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.msla.getActiveAccount()];
+                return [2 /*return*/, this.msal.getActiveAccount()];
             });
         });
     };
     User.prototype.setActiveAccount = function (account) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.msla.setActiveAccount(account);
+                this.msal.setActiveAccount(account);
                 return [2 /*return*/];
             });
         });
@@ -116,7 +134,7 @@ var User = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.msla.logoutPopup()];
+                    case 0: return [4 /*yield*/, this.msal.logoutPopup()];
                     case 1:
                         _a.sent();
                         return [2 /*return*/];

@@ -18,7 +18,7 @@
 
 <script>
 /* eslint-disabled */
-import { client, OneDrive } from "@/libs/msla";
+import { client, OneDrive } from "@/libs/msal";
 // import { OnlineDB } from "@/js/onlineDB.js";
 
 export default {

@@ -2,9 +2,9 @@ import { AccountInfo, PublicClientApplication } from "@azure/msal-browser";
 import { Client } from "@microsoft/microsoft-graph-client";
 declare class User {
     private client;
-    private msla;
-    constructor(client: Client, mlsa: PublicClientApplication);
-    login(): Promise<import("@azure/msal-browser").AuthenticationResult>;
+    private msal;
+    constructor(client: Client, msal: PublicClientApplication);
+    login(type: "popup" | "redirect"): Promise<import("@azure/msal-browser").AuthenticationResult>;
     getProfile(): Promise<any>;
     getAvatarMetadata(): Promise<any>;
     getAvatar(): Promise<any>;

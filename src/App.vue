@@ -23,7 +23,7 @@ import navigationView from "@/components/general/navigationView.vue";
 import editorContainer from "@/components/general/editorContainer.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
-import { client, User, msla, OneDrive } from "./libs/msla";
+import { user,onedrive } from "./libs/msal";
 
 export default {
     name: "App",
@@ -75,11 +75,12 @@ export default {
             this.reviseI18N(i18n);
         },
         async onedirveInit() {
-            this.reviseUser(new User(client, msla));
-            this.reviseOnedrive(new OneDrive(client));
+            this.reviseUser(user);
+            this.reviseOnedrive(onedrive);
             this.updateProgress(30);
             let accountList = await this.user.getAccounts();
             if (accountList.length === 0) accountList = await this.login();
+
             this.updateProgress(60);
             await this.user.setActiveAccount(accountList[0]);
             this.updateProgress(90);
@@ -90,7 +91,7 @@ export default {
             console.log(userInfo);
         },
         async login() {
-            this.user.login();
+            this.user.login("redirect");
             let i = 0;
             while (i < 3000) {
                 let accountList = await new Promise((resolve) => {
