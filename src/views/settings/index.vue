@@ -18,15 +18,25 @@
                 >{{local('Login')}}</fv-button>
                 
             </div>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Source')}}</p>
-                <fv-button
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'StorageTape'"
+                :title="local('Source')"
+                :content="local('Add New Source')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 35px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
                     :theme="theme"
                     icon="OneDriveAdd"
                     :is-box-shadow="true"
                     style="width: 150px;"
                     @click="show.addDS = true"
                 >{{local('Add New Source')}}</fv-button>
+                </template>
+            </fv-Collapse>
+            <div class="s-item-block">
                 <fv-list-view
                     :value="thisDBList"
                     :theme="theme"
@@ -49,34 +59,51 @@
                     </template>
                 </fv-list-view>
             </div>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Theme')}}</p>
-                <fv-button
-                    :theme="theme"
-                    fontSize="16"
-                    borderRadius="50"
-                    :is-box-shadow="true"
-                    style="width: 40px; height: 40px;"
-                    :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
-                    @click="toggleTheme(v)"
-                >
-                    <i
-                        class="ms-Icon"
-                        :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
-                    ></i>
-                </fv-button>
-            </div>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Language')}}</p>
-                <fv-Combobox
-                    v-model="cur_language"
-                    :theme="theme"
-                    :options="languages"
-                    :placeholder="local('Choose A Language')"
-                    :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
-                    @choose-item="chooseLanguage"
-                ></fv-Combobox>
-            </div>
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'Color'"
+                :title="local('Theme')"
+                :content="theme === 'light' ? `${local('Light')}` : `${local('Dark')}`"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 15px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
+                        :theme="theme"
+                        fontSize="16"
+                        borderRadius="50"
+                        :is-box-shadow="true"
+                        style="width: 40px; height: 40px;"
+                        :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
+                        @click="toggleTheme(v)"
+                    >
+                        <i
+                            class="ms-Icon"
+                            :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
+                        ></i>
+                    </fv-button>
+                </template>
+            </fv-Collapse>
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'LocaleLanguage'"
+                :title="local('Language')"
+                :content="local('Choose A Language')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
+            >
+                <template v-slot:extension>
+                    <fv-Combobox
+                        v-model="cur_language"
+                        :theme="theme"
+                        :options="languages"
+                        :placeholder="local('Choose A Language')"
+                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
+                        style="width: 120px;"
+                        @choose-item="chooseLanguage"
+                    ></fv-Combobox>
+                </template>
+            </fv-Collapse>
             <div class="s-item-block">
                 <p class="s-item-title">{{local('Logout')}}</p>
                 <fv-button
@@ -281,14 +308,17 @@ export default {
         position: relative;
         width: 100%;
         flex: 1;
+        padding-left: 15px;
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: flex-start;
         overflow: auto;
 
         .s-item-block {
             position: relative;
             width: calc(100% - 30px);
+            max-width: 1280px;
             height: auto;
             line-height: 2.5;
             display: flex;
