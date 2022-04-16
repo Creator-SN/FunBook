@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@azure/msal-browser": "^2.23.0",
-    "@creatorsn/powereditor": "^0.4.3",
+    "@creatorsn/powereditor": "^0.5.1",
     "@microsoft/microsoft-graph-client": "^3.0.2",
     "axios": "^0.26.1",
     "core-js": "^3.6.5",

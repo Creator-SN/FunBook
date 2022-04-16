@@ -82,7 +82,7 @@
                         expandedIconPosition="right"
                         :background="'rgba(58, 118, 146, 1)'"
                         :view-style="{backgroundColor: 'rgba(58, 118, 146, 1)', backgroundColorHover: 'rgba(58, 118, 146, 1)'}"
-                        style="width: 100%; height: 300px;"
+                        style="width: 100%; height: 100%; overflow: auto;"
                         @click="expandItem"
                     >
                         <template v-slot:default="x">

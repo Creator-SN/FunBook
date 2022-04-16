@@ -14,7 +14,7 @@
                     expandedIconPosition="right"
                     :background="theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)'"
                     :view-style="{backgroundColor: theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)', backgroundColorHover: theme == 'dark' ? 'rgba(200, 200, 200, 0.1)' : 'rgba(255, 255, 255, 1)'}"
-                    style="width: 100%; height: 100%;"
+                    style="width: 100%; height: 100%; overflow: auto;"
                 >
                     <template v-slot:default="x">
                         <div class="tree-view-custom-item">
