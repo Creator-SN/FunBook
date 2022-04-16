@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "1c77252903dc781e1d89",
+    "revision": "2c9b8efe6b8a812c0e9a",
     "url": "/FunBook/css/app.91f0d024.css"
   },
   {
@@ -536,12 +536,12 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/FunBook/img/logo.333445ad.svg"
   },
   {
-    "revision": "e4714f4ecf399e32b1b3c9dd990f790e",
+    "revision": "b82c906e665681ed16165db15f52e2b1",
     "url": "/FunBook/index.html"
   },
   {
-    "revision": "1c77252903dc781e1d89",
-    "url": "/FunBook/js/app.4340e978.js"
+    "revision": "2c9b8efe6b8a812c0e9a",
+    "url": "/FunBook/js/app.3fafc83d.js"
   },
   {
     "revision": "5c42191aa948210aea49",
