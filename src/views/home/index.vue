@@ -396,6 +396,9 @@ export default {
         $route() {
             this.itemsEnsureFolder();
             this.refreshFilterItems();
+        },
+        items() {
+            this.refreshFilterItems();
         }
     },
     computed: {
@@ -882,6 +885,7 @@ export default {
                         display: grid;
                         align-items: center;
                         cursor: pointer;
+                        overflow-x: auto;
                         user-select: none;
 
                         &:hover {

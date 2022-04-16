@@ -5,19 +5,16 @@
         :theme="theme"
     >
         <template v-slot:content>
-            <div class="w-p-block">
+            <div class="w-p-block" style="height: 100%;">
                 <p class="w-title">{{local('Data Source Name')}}</p>
-                <fv-text-box
-                    v-model="name"
-                    :placeholder="local('Onedrive Path')"
-                    :font-size="18"
-                    :font-weight="'bold'"
-                    underline
-                    :focus-border-color="'rgba(123, 139, 209, 1)'"
-                    :is-box-shadow="true"
-                    style="width: 100%; height: 60px; margin-top: 15px;"
-                    @keyup.enter="addDS"
-                ></fv-text-box>
+                <fv-Breadcrumb
+                    v-model="path"
+                    :theme="theme"
+                    :readOnly="false"
+                    style="width: 100%; height: 30px; margin-top: 15px;"
+                    @keyup.native.enter="addDS"
+                >
+                </fv-Breadcrumb>
                 <div
                     v-show="lock.loading"
                     class="tree-view-window"
@@ -26,24 +23,26 @@
                         v-model="treeList"
                         :theme="theme"
                         expandedIconPosition="right"
-                        background="transparent"
-                        :viewStyle="{backgroundColor:'transparent'}"
+                        :background="theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)'"
+                        :view-style="{backgroundColor: theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)', backgroundColorHover: theme == 'dark' ? 'rgba(200, 200, 200, 0.1)' : 'rgba(255, 255, 255, 1)'}"
                         style="width: 100%; height: 100%;"
                         @click="expandItem"
                     >
                         <template v-slot:default="x">
                             <div class="tree-view-custom-item">
-                                <i
+                                <img
                                     v-if="!x.item.loading"
-                                    class="ms-Icon"
-                                    :class="[`ms-Icon--${x.item.icon}`]"
-                                    style="color: rgba(255, 176, 63, 1);"
-                                ></i>
+                                    draggable="false"
+                                    class="icon-img"
+                                    :src="x.item.icon"
+                                    alt=""
+                                >
                                 <fv-progress-ring
                                     v-else
                                     loading="true"
                                     r="10"
                                     borderWidth="2"
+                                    background="rgba(200, 200, 200, 0.1)"
                                     style="display: flex; align-item: center;"
                                 ></fv-progress-ring>
                                 <p class="tree-view-custom-label">{{x.item.name}}</p>
@@ -62,8 +61,9 @@
                     ></fv-img>
                     <fv-progress-ring
                         loading="true"
-                        r="20"
-                        borderWidth="5"
+                        r="15"
+                        borderWidth="3"
+                        background="rgba(200, 200, 200, 0.1)"
                     ></fv-progress-ring>
                 </div>
             </div>
@@ -72,7 +72,7 @@
             <fv-button
                 theme="dark"
                 background="rgba(0, 153, 204, 1)"
-                :disabled="name === ''"
+                :disabled="path === ''"
                 @click="addDS"
             >{{local('Confirm')}}</fv-button>
             <fv-button
@@ -88,6 +88,8 @@ import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 import OneDrive from "@/assets/settings/OneDrive.svg";
+import folder from "@/assets/settings/folder.svg";
+import file from "@/assets/settings/file.svg";
 
 export default {
     components: {
@@ -101,10 +103,12 @@ export default {
     data() {
         return {
             thisShow: this.show,
-            name: "",
+            path: "",
             treeList: [],
             img: {
                 OneDrive,
+                folder,
+                file,
             },
             lock: {
                 loading: true,
@@ -117,7 +121,7 @@ export default {
         },
         thisShow(val) {
             this.$emit("update:show", val);
-            this.name = "";
+            this.path = "";
             if (val) {
                 this.lock.loading = true;
                 this.getRootInfo();
@@ -142,8 +146,8 @@ export default {
             reviseConfig: "reviseConfig",
         }),
         async addDS() {
-            if (this.name === "") return;
-            this.data_path.push(this.name);
+            if (this.path === "") return;
+            this.data_path.push(this.path);
             await this.reviseConfig({
                 v: this,
                 data_path: this.data_path,
@@ -152,7 +156,7 @@ export default {
             this.thisShow = false;
         },
         async getRootInfo() {
-            if(!this.lock.loading) return;
+            if (!this.lock.loading) return;
             this.lock.loading = false;
             let res = await this.onedrive.getMyDriveRootChildren();
             if (res.value) {
@@ -165,9 +169,9 @@ export default {
             let treeList = arr;
             treeList.forEach((el, idx) => {
                 if (el.folder) {
-                    treeList[idx].icon = "Folder";
+                    treeList[idx].icon = this.img.folder;
                     treeList[idx].children = [];
-                } else treeList[idx].icon = "Document";
+                } else treeList[idx].icon = this.img.file;
                 treeList[idx].loading = false;
                 treeList[idx].finished = false;
                 treeList[idx].depth = parent ? parent.depth + 1 : 1;
@@ -179,6 +183,7 @@ export default {
             return treeList;
         },
         async expandItem(item) {
+            this.path = item.path;
             if (!item.folder) return;
             if (item.finished) return;
             item.loading = true;
@@ -191,7 +196,6 @@ export default {
             }
             item.finished = true;
             item.loading = false;
-            this.name = item.path;
             // let grandParent = item;
             // while(grandParent.depth != 1) {
             //     grandParent = grandParent.parent;
@@ -208,7 +212,6 @@ export default {
     flex: 1;
     width: 100%;
     height: 100%;
-    max-height: 500px;
     margin-top: 35px;
     overflow: auto;
 
@@ -219,7 +222,14 @@ export default {
         display: flex;
         align-items: center;
 
+        .icon-img {
+            width: 20px;
+            height: auto;
+        }
+
         .tree-view-custom-label {
+            @include nowrap;
+
             margin-left: 5px;
         }
 

@@ -31,9 +31,9 @@
                     :theme="theme"
                     icon="OneDriveAdd"
                     :is-box-shadow="true"
-                    style="width: 150px;"
+                    style="width: 120px;"
                     @click="show.addDS = true"
-                >{{local('Add New Source')}}</fv-button>
+                >{{local('Add')}}</fv-button>
                 </template>
             </fv-Collapse>
             <div class="s-item-block">
@@ -104,17 +104,24 @@
                     ></fv-Combobox>
                 </template>
             </fv-Collapse>
-            <div class="s-item-block">
-                <p class="s-item-title">{{local('Logout')}}</p>
-                <fv-button
+            <fv-Collapse
+                :disabledCollapse="true"
+                :theme="theme"
+                :icon="'PowerButton'"
+                :title="local('Logout')"
+                :content="local('Logout')"
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
+            >
+                <template v-slot:extension>
+                    <fv-button
                     theme="dark"
                     :is-box-shadow="true"
-                    background="rgba(0, 90, 158, 1)"
-                    style="width: 150px;"
+                    background="rgba(224, 130, 128, 1)"
+                    style="width: 120px;"
                     @click="logout"
                 >{{local('Logout')}}</fv-button>
-                
-            </div>
+                </template>
+            </fv-Collapse>
         </div>
         <add-ds
             :show.sync="show.addDS"
@@ -209,6 +216,9 @@ export default {
             reviseData: "reviseData",
             toggleTheme: "toggleTheme",
             syncDS: "syncDS",
+            saveLocalStorage: "saveLocalStorage",
+            getLocalStorage: "getLocalStorage",
+            cleanLocalStorage: "cleanLocalStorage"
         }),
         languageInit() {
             this.cur_language = this.languages.find(
@@ -255,6 +265,7 @@ export default {
         async logout () {
             await this.user.logout();
             this.user.getActiveAccount().then(res => {
+                this.cleanLocalStorage();
                 console.log(res)
             });
         }

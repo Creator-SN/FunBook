@@ -18,11 +18,11 @@ const routes = [
         name: "Home",
         component: () => AsyncLoad(import("@/views/home"))
     },
-    // {
-    //     path: "/templates",
-    //     name: "Templates",
-    //     component: () => AsyncLoad(import("@/views/templates"))
-    // },
+    {
+        path: "/templates",
+        name: "Templates",
+        component: () => AsyncLoad(import("@/views/templates"))
+    },
     {
         path: "/settings",
         name: "Settings",

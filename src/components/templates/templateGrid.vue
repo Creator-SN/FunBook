@@ -103,6 +103,8 @@
 import rightMenu from "@/components/general/rightMenu.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
+const path = require("path");
+
 export default {
     components: {
         rightMenu,
@@ -121,7 +123,7 @@ export default {
         },
         rightMenuWidth: {
             default: 200,
-        }
+        },
     },
     data() {
         return {
@@ -180,48 +182,44 @@ export default {
             toggleEditor: "toggleEditor",
         }),
         async loadTemplates() {
-            // this.thisValue = JSON.parse(JSON.stringify(this.value));
-            // let promises = [];
-            // for (let el of this.thisValue) {
-            //     el.show = true;
-            //     el.choosen = false;
-            //     this.$set(this.thisValue, this.thisValue.indexOf(el), el);
-            // }
-            // for (let el of this.thisValue) {
-            //     let url = path.join(
-            //         this.data_path[this.data_index],
-            //         "root/templates",
-            //         `${el.id}.json`
-            //     );
-            //     ipc.send("read-file", {
-            //         id: el.id,
-            //         path: url,
-            //     });
-            //     promises.push(
-            //         new Promise((resolve) => {
-            //             ipc.on(`read-file-${el.id}`, (event, data) => {
-            //                 let content = data;
-            //                 try {
-            //                     el.content = JSON.parse(content);
-            //                     el.content.content = el.content.content.slice(
-            //                         0,
-            //                         10
-            //                     );
-            //                 } catch (e) {
-            //                     el.content = content.slice(0, 500);
-            //                 }
-            //                 el.minContent = el.content;
-            //                 this.$set(
-            //                     this.thisValue,
-            //                     this.thisValue.indexOf(el),
-            //                     el
-            //                 );
-            //                 resolve(el.id);
-            //             });
-            //         })
-            //     );
-            // }
-            // return await Promise.all(promises);
+            this.thisValue = JSON.parse(JSON.stringify(this.value));
+            let promises = [];
+            for (let el of this.thisValue) {
+                el.show = true;
+                el.choosen = false;
+                this.$set(this.thisValue, this.thisValue.indexOf(el), el);
+            }
+            for (let el of this.thisValue) {
+                let url = path.join(
+                    this.data_path[this.data_index],
+                    "root/templates",
+                    `${el.id}.json`
+                );
+                promises.push(
+                    new Promise((resolve) => {
+                        this.cur_db.readFile(url).then((data) => {
+                            let content = data;
+                            try {
+                                el.content = JSON.parse(content);
+                                el.content.content = el.content.content.slice(
+                                    0,
+                                    10
+                                );
+                            } catch (e) {
+                                el.content = content.slice(0, 500);
+                            }
+                            el.minContent = el.content;
+                            this.$set(
+                                this.thisValue,
+                                this.thisValue.indexOf(el),
+                                el
+                            );
+                            resolve(el.id);
+                        });
+                    })
+                );
+            }
+            return await Promise.all(promises);
         },
         rightClick(event, item) {
             event.preventDefault();

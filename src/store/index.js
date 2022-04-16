@@ -36,6 +36,11 @@ export default new Vuex.Store({
             scrollTop: 0,
             history: []
         },
+        window: {
+            width: 0,
+            height: 0,
+            mobileDisplay: 768
+        },
         dbList: [],
         i18n: {}
     },
@@ -52,6 +57,7 @@ export default new Vuex.Store({
                     continue;
                 state[key] = obj[key];
                 // obj.v.$config_db.set(key, state[key]).write();
+                this.commit('saveLocalStorage');
             }
         },
         reviseDS(state, obj) {
@@ -78,6 +84,33 @@ export default new Vuex.Store({
         },
         reviseI18N(state, i18n) {
             state.i18n = i18n
+        },
+        setWindowSize(state, obj) {
+            state.window.width = obj.width;
+            state.window.height = obj.height;
+        },
+        saveLocalStorage(state) {
+            localStorage.setItem("configCache", JSON.stringify({
+                init_status: state.init_status,
+                data_path: state.data_path,
+                data_index: state.data_index,
+                language: state.language,
+                theme: state.theme,
+            }));
+        },
+        getLocalStorage(state) {
+            let configCache = localStorage.getItem("configCache");
+            if (configCache) {
+                let config = JSON.parse(configCache);
+                state.init_status = config.init_status;
+                state.data_path = config.data_path;
+                state.data_index = config.data_index;
+                state.language = config.language;
+                state.theme = config.theme;
+            }
+        },
+        cleanLocalStorage() {
+            localStorage.removeItem("configCache");
         },
         toggleTheme(state, v) {
             if (state.theme == 'light') {

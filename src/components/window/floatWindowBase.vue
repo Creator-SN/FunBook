@@ -181,6 +181,8 @@ export default {
             flex: 1;
             flex-shrink: 0;
             padding: 40px 0px;
+            box-sizing: border-box;
+            display: flex;
             overflow: auto;
         }
 
@@ -203,6 +205,9 @@ export default {
             overflow: hidden;
 
             &.overflow {
+                height: 100%;
+                padding: 40px 0px 0px 0px;
+                box-sizing: border-box;
                 overflow-y: auto;
             }
 

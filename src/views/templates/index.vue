@@ -69,8 +69,8 @@ import addTemplate from "@/components/templates/addTemplate.vue";
 import renameTemplate from "@/components/templates/renameTemplate.vue";
 import templateGrid from "@/components/templates/templateGrid.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
-const { ipcRenderer: ipc } = require("electron");
-const path = require("path");
+
+// const path = require("path");
 
 export default {
     components: {
@@ -144,13 +144,13 @@ export default {
         templatesEnsureFolder() {
             if (!this.cur_db || this.data_index == -1) return;
             this.lock = false;
-            ipc.send(
-                "ensure-folder",
-                path.join(this.data_path[this.data_index], "root/templates")
-            );
-            ipc.on("ensure-folder-callback", () => {
-                this.lock = true;
-            });
+            // ipc.send(
+            //     "ensure-folder",
+            //     path.join(this.data_path[this.data_index], "root/templates")
+            // );
+            // ipc.on("ensure-folder-callback", () => {
+            //     this.lock = true;
+            // });
         },
         deleteTemplate() {
             if (!this.currentItem.id || !this.lock) return;
@@ -172,14 +172,14 @@ export default {
                         $index: this.data_index,
                         templates: this.templates,
                     });
-                    ipc.send(
-                        "remove-file",
-                        path.join(
-                            this.data_path[this.data_index],
-                            "root/templates",
-                            `${this.currentItem.id}.json`
-                        )
-                    );
+                    // ipc.send(
+                    //     "remove-file",
+                    //     path.join(
+                    //         this.data_path[this.data_index],
+                    //         "root/templates",
+                    //         `${this.currentItem.id}.json`
+                    //     )
+                    // );
                     this.lock = true;
                 },
                 cancel: () => {},
@@ -209,14 +209,14 @@ export default {
                                 $index: this.data_index,
                                 templates: this.templates,
                             });
-                            ipc.send(
-                                "remove-file",
-                                path.join(
-                                    this.data_path[this.data_index],
-                                    "root/templates",
-                                    `${el.id}.json`
-                                )
-                            );
+                            // ipc.send(
+                            //     "remove-file",
+                            //     path.join(
+                            //         this.data_path[this.data_index],
+                            //         "root/templates",
+                            //         `${el.id}.json`
+                            //     )
+                            // );
                             this.lock = true;
                         });
                     },

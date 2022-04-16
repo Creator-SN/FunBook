@@ -11,8 +11,8 @@
         expandDisplay="768"
         :flyout-display="1280"
         style="z-index: 2;"
-        @setting-click="Go(`/settings`)"
-        @back="$Back"
+        @setting-click="() => { Go(`/settings`); collapseNav(); }"
+        @back="() => { $Back(); collapseNav(); }"
     >
         <template v-slot:searchBlock>
             <fv-search-box
@@ -235,7 +235,7 @@ import navEmpty from "@/components/general/empty/navEmpty.vue";
 import rightMenu from "@/components/general/rightMenu.vue";
 import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
-import { data_structure, group, partition } from "@/js/data_sample";
+import { group, partition } from "@/js/data_sample";
 
 export default {
     components: {
@@ -280,14 +280,20 @@ export default {
                     name: () => this.local("Templates"),
                     icon: "FileTemplate",
                     iconColor: "rgba(0, 153, 204, 1)",
-                    func: () => this.Go("/templates"),
+                    func: () => {
+                        this.Go("/templates");
+                        this.collapseNav();
+                    },
                     disabled: () => this.SourceDisabled,
                 },
                 {
                     name: () => this.local("All Items"),
                     icon: "PrintAllPages",
                     iconColor: "rgba(0, 90, 158, 1)",
-                    func: () => this.Go("/"),
+                    func: () => {
+                        this.Go("/");
+                        this.collapseNav();
+                    },
                     disabled: () => this.SourceDisabled,
                 },
             ],
@@ -303,10 +309,6 @@ export default {
         };
     },
     watch: {
-        data_index() {
-            console.log("changed");
-            this.syncDS();
-        },
         groups() {
             this.refreshTreeList();
         },
@@ -319,6 +321,8 @@ export default {
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             language: (state) => state.language,
+            windowWidth: (state) => state.window.width,
+            windowHeight: (state) => state.window.height,
             ds_id: (state) => state.data_structure.id,
             name: (state) => state.data_structure.name,
             groups: (state) => state.data_structure.groups,
@@ -346,7 +350,9 @@ export default {
         },
     },
     mounted() {
-        this.syncDS();
+        setTimeout(() => {
+            if (this.windowWidth <= 768) this.expand = false;
+        }, 300);
         this.refreshTreeList();
     },
     methods: {
@@ -354,26 +360,6 @@ export default {
             reviseDS: "reviseDS",
             reviseI18N: "reviseI18N",
         }),
-        syncDS() {
-            if (!this.cur_db) return 0;
-            let _data_structure = JSON.parse(JSON.stringify(data_structure));
-            for (let key in _data_structure) {
-                _data_structure[key] = this.cur_db.ds[key];
-                if (!_data_structure[key]) {
-                    let object = {
-                        $index: this.data_index,
-                    };
-                    object[key] = data_structure[key];
-                    this.reviseDS(object);
-                } else {
-                    let object = {
-                        $index: this.data_index,
-                    };
-                    object[key] = _data_structure[key];
-                    this.reviseDS(object);
-                }
-            }
-        },
         refreshTreeList() {
             let result = [];
             this.saveExpandedStatus();
@@ -645,6 +631,9 @@ export default {
 
             this.rightMenuItem = item;
         },
+        collapseNav() {
+            if (this.windowWidth <= 768) this.expand = false;
+        },
         collapseFunc(func) {
             this.expand = true;
             func();
@@ -654,6 +643,7 @@ export default {
             let id = item.id;
             if (this.$route.params.id === id) return 0;
             this.$Go(`/partitions/${id}`);
+            this.collapseNav();
         },
         Go(path) {
             if (this.$route.path === path) return 0;

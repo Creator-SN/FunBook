@@ -17,8 +17,8 @@
 import floatWindowBase from "../window/floatWindowBase.vue";
 import {page} from "@/js/data_sample.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
-const { ipcRenderer: ipc } = require("electron");
-const path = require("path");
+// const { ipcRenderer: ipc } = require("electron");
+// const path = require("path");
 
 export default {
     components: {
@@ -73,16 +73,16 @@ export default {
                 $index: this.data_index,
                 templates: this.templates
             });
-            let url = path.join(this.data_path[this.data_index], 'root/templates', `${_page.id}.json`);
-            ipc.send('output-file', {
-                path: url,
-                data: ""
-            });
-            await new Promise(resolve => {
-                ipc.on('output-file-callback', () => {
-                    resolve(1);
-                });
-            })
+            // let url = path.join(this.data_path[this.data_index], 'root/templates', `${_page.id}.json`);
+            // ipc.send('output-file', {
+            //     path: url,
+            //     data: ""
+            // });
+            // await new Promise(resolve => {
+            //     ipc.on('output-file-callback', () => {
+            //         resolve(1);
+            //     });
+            // })
             this.thisShow = false;
         }
     },

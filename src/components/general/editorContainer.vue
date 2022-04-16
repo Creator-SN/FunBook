@@ -3,7 +3,7 @@
         <div
             v-show="show_editor"
             class="ikfb-editor-container"
-            :class="[{ dark: theme == 'dark', fullScreen: fullScreen }]"
+            :class="[{ dark: theme == 'dark', fullScreen: windowWidth <= 768 || fullScreen }]"
         >
             <div class="control-banner">
                 <div class="control-left-block">
@@ -24,6 +24,7 @@
                         ></i>
                     </fv-button>
                     <fv-button
+                    v-show="windowWidth > 768"
                         :theme="theme"
                         :borderRadius="30"
                         class="control-btn"
@@ -140,6 +141,7 @@
                     loading="true"
                     r="20"
                     borderWidth="5"
+                    background="rgba(255, 255, 255, 0.1)"
                 ></fv-progress-ring>
             </div>
             <div
@@ -281,6 +283,8 @@ export default {
             templates: (state) => state.data_structure.templates,
             language: (state) => state.language,
             theme: (state) => state.theme,
+            windowWidth: (state) => state.window.width,
+            windowHeight: (state) => state.window.height,
             show_editor: (state) => state.editor.show,
             type: (state) => state.editor.type,
             scrollTop: (state) => state.editor.scrollTop,
