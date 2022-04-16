@@ -121,6 +121,8 @@ export default new Vuex.Store({
             if(v)
                 console.log(state.theme);
             // v.$config_db.set('theme', state.theme).write();
+            document.querySelector('meta[name="theme-color"]').setAttribute('content', state.theme === 'light' ? 'rgba(245, 245, 245, 1)' : 'rgba(36, 36, 36, 1)');
+            this.commit('saveLocalStorage');
         },
         toggleEditor(state, status) {
             state.editor.show = status;
