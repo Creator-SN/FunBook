@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/FunBook/precache-manifest.fbeb45c4f9735f7057b33e8dc174bf02.js"
+  "/FunBook/precache-manifest.f64bb21a7af0cad464f66914625b8d51.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "funbook"});
