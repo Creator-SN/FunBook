@@ -36,13 +36,14 @@ export class OnlineDB {
         try {
             res = await this.graphAPI.OneDrive.Drive().path(this.path).getAsync()
             // 判断是否是远程挂载的文件夹
-            if (res.remoteItem !== null) {
+            if (res.remoteItem !== undefined) {
                 this.root = this.graphAPI.OneDrive.Drive(res.remoteItem.parentReference.driveId).item(res.remoteItem.id)
             } else {
                 this.root = this.graphAPI.OneDrive.Drive().item(res.id)
             }
             res = await this.root.clone().path("data_structure.json").getAsync()
-        } catch {
+        } catch (e) {
+            console.error(e)
             // 尝试创建根文件
             // 先检查是否有锁
             try {
@@ -74,6 +75,7 @@ export class OnlineDB {
                 res = await this.root.clone().path("data_structure.json").getAsync()
 
             } catch (e) {
+                console.error(e)
                 // 创建失败
                 this.updateProgress(0);
                 return;
