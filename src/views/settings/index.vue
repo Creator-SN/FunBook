@@ -1,132 +1,69 @@
 <template>
-    <div
-        class="settings-container"
-        :class="[{dark: theme === 'dark'}]"
-    >
+    <div class="settings-container" :class="[{ dark: theme === 'dark' }]">
         <div class="s-row">
-            <p class="s-title">{{local('Setting')}}</p>
+            <p class="s-title">{{ local('Setting') }}</p>
         </div>
         <div class="scroll-view">
             <div class="s-item-block">
-                <fv-button
-                v-show="!userInfo"
-                    theme="dark"
-                    :is-box-shadow="true"
-                    background="rgba(0, 90, 158, 1)"
-                    style="width: 150px;"
-                    @click="login"
-                >{{local('Login')}}</fv-button>
-                
+                <fv-button v-show="!userInfo" theme="dark" :is-box-shadow="true" background="rgba(0, 90, 158, 1)"
+                    style="width: 150px;" @click="login">{{ local('Login') }}</fv-button>
+
             </div>
-            <fv-Collapse
-                :disabledCollapse="true"
-                :theme="theme"
-                :icon="'StorageTape'"
-                :title="local('Source')"
+            <fv-Collapse :disabledCollapse="true" :theme="theme" :icon="'StorageTape'" :title="local('Source')"
                 :content="local('Add New Source')"
-                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 35px;"
-            >
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 35px;">
                 <template v-slot:extension>
-                    <fv-button
-                    :theme="theme"
-                    icon="OneDriveAdd"
-                    :is-box-shadow="true"
-                    style="width: 120px;"
-                    @click="show.addDS = true"
-                >{{local('Add')}}</fv-button>
+                    <fv-button :theme="theme" icon="OneDriveAdd" :is-box-shadow="true" style="width: 120px;"
+                        @click="show.addDS = true">{{ local('Add') }}</fv-button>
                 </template>
             </fv-Collapse>
             <div class="s-item-block">
-                <fv-list-view
-                    :value="thisDBList"
-                    :theme="theme"
-                    style="width: 100%; height: auto; margin-top: 15px;"
-                    @chooseItem="switchDSDB($event)"
-                >
+                <fv-list-view :value="thisDBList" :theme="theme" style="width: 100%; height: auto; margin-top: 15px;"
+                    @chooseItem="switchDSDB($event)">
                     <template v-slot:listItem="x">
-                        <div class="list-view-item" :class="[{choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index)}]">
+                        <div class="list-view-item"
+                            :class="[{ choosen: data_index === x.index, disabled: SourceIndexDisabled(x.index) }]">
                             <img draggable="false" class="icon-img" :src="img.OneDrive" alt="">
-                            <p class="item-name">{{x.item.name}}</p>
-                            <fv-button
-                                :theme="theme"
-                                class="control-btn"
-                                :title="local(`Unlink this source`)"
-                                @click="removeDS(x.item)"
-                            >
+                            <p class="item-name">{{ x.item.name }}</p>
+                            <fv-button :theme="theme" class="control-btn" :title="local(`Unlink this source`)"
+                                @click="removeDS(x.item)">
                                 <i class="ms-Icon ms-Icon--RemoveLink"></i>
                             </fv-button>
                         </div>
                     </template>
                 </fv-list-view>
             </div>
-            <fv-Collapse
-                :disabledCollapse="true"
-                :theme="theme"
-                :icon="'Color'"
-                :title="local('Theme')"
+            <fv-Collapse :disabledCollapse="true" :theme="theme" :icon="'Color'" :title="local('Theme')"
                 :content="theme === 'light' ? `${local('Light')}` : `${local('Dark')}`"
-                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 15px;"
-            >
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 15px;">
                 <template v-slot:extension>
-                    <fv-button
-                        :theme="theme"
-                        fontSize="16"
-                        borderRadius="50"
-                        :is-box-shadow="true"
+                    <fv-button :theme="theme" fontSize="16" borderRadius="50" :is-box-shadow="true"
                         style="width: 40px; height: 40px;"
                         :title="theme === 'light' ? `${local('Switch to the dark theme')}` : `${local('Switch to the light theme')}`"
-                        @click="toggleTheme(v)"
-                    >
-                        <i
-                            class="ms-Icon"
-                            :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"
-                        ></i>
+                        @click="toggleTheme(v)">
+                        <i class="ms-Icon" :class="[`ms-Icon--${theme === 'light' ? 'Sunny' : 'ClearNight'}`]"></i>
                     </fv-button>
                 </template>
             </fv-Collapse>
-            <fv-Collapse
-                :disabledCollapse="true"
-                :theme="theme"
-                :icon="'LocaleLanguage'"
-                :title="local('Language')"
+            <fv-Collapse :disabledCollapse="true" :theme="theme" :icon="'LocaleLanguage'" :title="local('Language')"
                 :content="local('Choose A Language')"
-                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
-            >
+                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;">
                 <template v-slot:extension>
-                    <fv-Combobox
-                        v-model="cur_language"
-                        :theme="theme"
-                        :options="languages"
+                    <fv-Combobox v-model="cur_language" :theme="theme" :options="languages"
                         :placeholder="local('Choose A Language')"
-                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''"
-                        style="width: 120px;"
-                        @choose-item="chooseLanguage"
-                    ></fv-Combobox>
+                        :background="theme === 'dark' ? 'rgba(36, 36, 36, 1)' : ''" style="width: 120px;"
+                        @choose-item="chooseLanguage"></fv-Combobox>
                 </template>
             </fv-Collapse>
-            <fv-Collapse
-                :disabledCollapse="true"
-                :theme="theme"
-                :icon="'PowerButton'"
-                :title="local('Logout')"
-                :content="local('Logout')"
-                style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;"
-            >
+            <fv-Collapse :disabledCollapse="true" :theme="theme" :icon="'PowerButton'" :title="local('Logout')"
+                :content="local('Logout')" style="width: calc(100% - 15px); max-width: 1280px; margin-top: 3px;">
                 <template v-slot:extension>
-                    <fv-button
-                    theme="dark"
-                    :is-box-shadow="true"
-                    background="rgba(224, 130, 128, 1)"
-                    style="width: 120px;"
-                    @click="logout"
-                >{{local('Logout')}}</fv-button>
+                    <fv-button theme="dark" :is-box-shadow="true" background="rgba(224, 130, 128, 1)"
+                        style="width: 120px;" @click="logout">{{ local('Logout') }}</fv-button>
                 </template>
             </fv-Collapse>
         </div>
-        <add-ds
-            :show.sync="show.addDS"
-            :theme="theme"
-        >
+        <add-ds :show.sync="show.addDS" :theme="theme">
         </add-ds>
     </div>
 </template>
@@ -174,7 +111,7 @@ export default {
             /**
              * @returns {GraphAPI}
              */
-            graphAPI: state=>state.graphAPI,
+            graphAPI: state => state.graphAPI,
             userInfo: state => state.userInfo,
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
@@ -187,7 +124,7 @@ export default {
         v() {
             return this;
         },
-        thisDBList () {
+        thisDBList() {
             let pathList = this.data_path;
             let thisDBList = [];
             pathList.forEach((el, idx) => {
@@ -205,7 +142,7 @@ export default {
         SourceIndexDisabled() {
             return (index) => {
                 if (!this.dbList[index]) return true;
-                if(this.data_path[index] !== this.dbList[index].key) return true;
+                if (this.data_path[index] !== this.dbList[index].key) return true;
                 return !this.dbList[index].init;
             };
         },
@@ -237,7 +174,7 @@ export default {
         },
         switchDSDB(event) {
             let index = this.data_path.indexOf(event.item.path);
-            if(this.SourceIndexDisabled(index)) return;
+            if (this.SourceIndexDisabled(index)) return;
             this.lock.switchDSDB = false;
             this.reviseConfig({
                 v: this,
@@ -259,25 +196,21 @@ export default {
                         let index = this.data_path.indexOf(url);
                         this.data_path.splice(index, 1);
                     },
-                    cancel: () => {},
+                    cancel: () => { },
                 }
             );
         },
-        login () {
-            this.graphAPI.loginAsync(LoginType.Popup).then(async (res)=>{
+        login() {
+            this.graphAPI.loginAsync(LoginType.Popup).then(async (res) => {
                 let accounts = this.graphAPI.getAccounts();
-                if (accounts.length>0){
+                if (accounts.length > 0) {
                     this.graphAPI.setActiveAccount(accounts[0]);
                 }
-                console.log(accounts,res)
             })
         },
-        async logout () {
-            // await this.user.logout();
-            // this.user.getActiveAccount().then(res => {
-            //     this.cleanLocalStorage();
-            //     console.log(res)
-            // });
+        async logout() {
+            await this.graphAPI.logoutAsync(LoginType.Popup)
+            this.cleanLocalStorage()
         }
     },
 };
@@ -359,18 +292,15 @@ export default {
                 display: flex;
                 align-items: center;
 
-                &.disabled
-                {
+                &.disabled {
                     filter: grayscale(100%);
                 }
 
-                &.choosen
-                {
+                &.choosen {
                     border-color: rgba(0, 98, 158, 0.6);
                 }
 
-                .icon-img
-                {
+                .icon-img {
                     width: 20px;
                     height: auto;
                 }

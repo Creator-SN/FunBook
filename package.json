@@ -1,12 +1,13 @@
 {
   "name": "funbook",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "license": "MIT",
   "dependencies": {
     "@azure/msal-browser": "^2.23.0",
     "@creatorsn/powereditor": "^0.6.2",
