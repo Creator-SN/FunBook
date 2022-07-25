@@ -1,244 +1,128 @@
 <template>
-    <div
-        class="ikfb-home-container"
-        :class="[{dark: theme === 'dark'}]"
-    >
+    <div class="ikfb-home-container" :class="[{ dark: theme === 'dark' }]">
         <div class="s-row">
-            <p class="s-title">{{pid === false ? local('All') : pname}}</p>
+            <p class="s-title">{{ pid === false ? local('All') : pname }}</p>
         </div>
         <div class="m-home-block">
             <div class="row between">
-                <fv-text-box
-                    v-model="currentSearch"
-                    :placeholder="local('Filtering from current content')"
-                    :theme="theme"
-                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
-                    icon="Filter"
-                    borderWidth="2"
-                    :revealBorder="true"
-                    style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"
-                ></fv-text-box>
+                <fv-text-box v-model="currentSearch" :placeholder="local('Filtering from current content')"
+                    :theme="theme" :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
+                    icon="Filter" borderWidth="2" :revealBorder="true"
+                    style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"></fv-text-box>
                 <div class="sort-block">
-                    <fv-combobox
-                        v-model="sortKey"
-                        :options="sortOptions"
-                        :placeholder="local('Sort by')"
+                    <fv-combobox v-model="sortKey" :options="sortOptions" :placeholder="local('Sort by')"
                         :inputBackground="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
-                        :borderRadius="3"
-                        :theme="theme"
-                        style="width: 120px;"
-                    ></fv-combobox>
-                    <fv-button
-                        :theme="theme"
-                        :disabled="sortKey.key == undefined"
+                        :borderRadius="3" :theme="theme" style="width: 120px;"></fv-combobox>
+                    <fv-button :theme="theme" :disabled="sortKey.key == undefined"
                         style="width: 35px; height: 35px; margin-left: 5px;"
                         :title="sortDesc == 1 ? local('Switch to Descending') : local('Switch to Ascending')"
-                        @click="sortDesc = -sortDesc"
-                    >
-                        <i
-                            class="ms-Icon"
-                            :class="[`ms-Icon--${sortDesc == 1 ? 'Ascending' : 'Descending'}`]"
-                            style="font-size: 18px;"
-                        ></i>
+                        @click="sortDesc = -sortDesc">
+                        <i class="ms-Icon" :class="[`ms-Icon--${sortDesc == 1 ? 'Ascending' : 'Descending'}`]"
+                            style="font-size: 18px;"></i>
                     </fv-button>
                 </div>
             </div>
             <div class="row command-bar">
-                <fv-command-bar
-                    :options="cmd"
-                    :theme="theme"
-                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'"
-                    style="flex: 1;"
-                ></fv-command-bar>
+                <fv-command-bar :options="cmd" :theme="theme"
+                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'" style="flex: 1;">
+                </fv-command-bar>
             </div>
             <div class="row main-table">
-                <main-list
-                    :value="filterItems"
-                    :edit="editable"
-                    :sortKey="sortKey.key"
-                    :desc="sortDesc"
-                    :theme="theme"
-                    :filter="currentSearch"
-                    @open-file="openFile"
-                    @label-click="($event) => {currentItem = $event; show.rename = true}"
-                    @rightclick="currentItem = $event"
-                    @choose-items="currentChoosen = $event"
-                    @insert-emoji="reviseItemEmoji($event.item, $event.emoji)"
-                >
+                <main-list :value="filterItems" :edit="editable" :sortKey="sortKey.key" :desc="sortDesc" :theme="theme"
+                    :filter="currentSearch" @open-file="openFile"
+                    @label-click="($event) => { currentItem = $event; show.rename = true }"
+                    @rightclick="currentItem = $event" @choose-items="currentChoosen = $event"
+                    @insert-emoji="reviseItemEmoji($event.item, $event.emoji)">
                     <template v-slot:row_expand="x">
                         <div class="main-row-item-info">
-                            <div
-                                class="item"
-                                style="display: flex;"
-                                @click="($event) => {currentItem = x.item; show.rename = true}"
-                            >
-                                <fv-tag
-                                    v-if="x.item.labels.length > 0"
-                                    :value="x.item.labels"
-                                    :theme="theme"
-                                    style="width: 100%;"
-                                ></fv-tag>
-                                <i
-                                    v-if="x.item.labels.length <= 0"
-                                    class="ms-Icon ms-Icon--Tag"
-                                ></i>
-                                <p
-                                    v-if="x.item.labels.length <= 0"
-                                    style="margin-left: 15px;"
-                                >{{local("Add Labels")}}</p>
+                            <div class="item" style="display: flex;"
+                                @click="($event) => { currentItem = x.item; show.rename = true }">
+                                <fv-tag v-if="x.item.labels.length > 0" :value="x.item.labels" :theme="theme"
+                                    style="width: 100%;"></fv-tag>
+                                <i v-if="x.item.labels.length <= 0" class="ms-Icon ms-Icon--Tag"></i>
+                                <p v-if="x.item.labels.length <= 0" style="margin-left: 15px;">{{ local("Add Labels") }}
+                                </p>
                             </div>
-                            <div
-                                v-show="x.item.pdf"
-                                class="item"
-                                @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
-                            >
+                            <div v-show="x.item.pdf" class="item"
+                                @dblclick="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">
                                 <i class="ms-Icon ms-Icon--PDF"></i>
-                                <p
-                                    class="highlight"
-                                    @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
-                                >PDF</p>
-                                <p
-                                    class="sec highlight"
-                                    @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)"
-                                >{{x.item.pdf}}.pdf</p>
+                                <p class="highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">PDF</p>
+                                <p class="sec highlight" @click="openFile(`${x.item.id}/${x.item.pdf}.pdf`)">
+                                    {{ x.item.pdf }}.pdf</p>
                                 <p></p>
-                                <fv-button
-                                    background="rgba(255, 180, 0, 1)"
-                                    style="width: 35px; height: 35px;"
-                                    :title="local('Open Folder')"
-                                    @click="openFile(`${x.item.id}`)"
-                                >
+                                <fv-button background="rgba(255, 180, 0, 1)" style="width: 35px; height: 35px;"
+                                    :title="local('Open Folder')" @click="openFile(`${x.item.id}`)">
                                     <i class="ms-Icon ms-Icon--FabricFolder"></i>
                                 </fv-button>
                             </div>
-                            <div
-                                v-show="x.item.metadata"
-                                class="item"
-                            >
+                            <div v-show="x.item.metadata" class="item">
                                 <i class="ms-Icon ms-Icon--LinkedDatabase"></i>
-                                <p
-                                    class="highlight"
-                                    @click="showMetadata(x.item)"
-                                >Metadata</p>
-                                <p
-                                    class="sec highlight"
-                                    @click="showMetadata(x.item)"
-                                >{{x.item.id}}.metadata</p>
+                                <p class="highlight" @click="showMetadata(x.item)">Metadata</p>
+                                <p class="sec highlight" @click="showMetadata(x.item)">{{ x.item.id }}.metadata</p>
                                 <p></p>
-                                <fv-button
-                                    background="rgba(255, 180, 0, 1)"
-                                    style="width: 35px; height: 35px;"
-                                    :title="local('Open Folder')"
-                                    @click="openFile(`${x.item.id}`)"
-                                >
+                                <fv-button background="rgba(255, 180, 0, 1)" style="width: 35px; height: 35px;"
+                                    :title="local('Open Folder')" @click="openFile(`${x.item.id}`)">
                                     <i class="ms-Icon ms-Icon--FabricFolder"></i>
                                 </fv-button>
                             </div>
-                            <div
-                                v-for="(page, index) in x.item.pages"
-                                :key="index"
-                                class="item"
-                            >
-                                <emoji-callout :value="page.emoji" :theme="theme" style="width: 25px;" @insert-emoji="revisePageEmoji(x.item, page, $event)"></emoji-callout>
-                                <p
-                                    class="highlight"
-                                    @click="openEditor(x.item, page)"
-                                >{{page.name}}</p>
-                                <p class="sec">{{page.id}}</p>
-                                <p class="sec">{{page.createDate}}</p>
-                                <fv-button
-                                    theme="dark"
-                                    background="rgba(0, 120, 212, 1)"
-                                    style="width: 35px; height: 35px;"
-                                    :title="local('Rename')"
-                                    @click="showRenameItemPage(x.item, page)"
-                                >
+                            <div v-for="(page, index) in x.item.pages" :key="index" class="item">
+                                <emoji-callout :value="page.emoji" :theme="theme" style="width: 25px;"
+                                    @insert-emoji="revisePageEmoji(x.item, page, $event)"></emoji-callout>
+                                <p class="highlight" @click="openEditor(x.item, page)">{{ page.name }}</p>
+                                <p class="sec">{{ page.id }}</p>
+                                <p class="sec">{{ page.createDate }}</p>
+                                <fv-button theme="dark" background="rgba(0, 120, 212, 1)"
+                                    style="width: 35px; height: 35px;" :title="local('Rename')"
+                                    @click="showRenameItemPage(x.item, page)">
                                     <i class="ms-Icon ms-Icon--Rename"></i>
                                 </fv-button>
-                                <fv-button
-                                    theme="dark"
-                                    background="rgba(220, 62, 72, 1)"
-                                    style="width: 35px; height: 35px;"
-                                    :title="local('Delete')"
-                                    @click="deleteItemPage(x.item.id, page.id)"
-                                >
+                                <fv-button theme="dark" background="rgba(220, 62, 72, 1)"
+                                    style="width: 35px; height: 35px;" :title="local('Delete')"
+                                    @click="deleteItemPage(x.item.id, page.id)">
                                     <i class="ms-Icon ms-Icon--Delete"></i>
                                 </fv-button>
                             </div>
-                            <div
-                                class="item"
-                                style="display: flex;"
-                                @click="($event) => {currentItem = x.item; show.addItemPage = true}"
-                            >
+                            <div class="item" style="display: flex;"
+                                @click="($event) => { currentItem = x.item; show.addItemPage = true }">
                                 <i class="ms-Icon ms-Icon--Add"></i>
-                                <p style="margin-left: 15px;">{{local("Add Page")}}</p>
+                                <p style="margin-left: 15px;">{{ local("Add Page") }}</p>
                             </div>
                         </div>
                     </template>
                     <template v-slot:menu>
                         <div>
                             <span @click="show.addItemPage = true">
-                                <i
-                                    class="ms-Icon ms-Icon--PageAdd"
-                                    style="color: rgba(38, 188, 140, 1);"
-                                ></i>
-                                <p>{{local("Add Page")}}</p>
+                                <i class="ms-Icon ms-Icon--PageAdd" style="color: rgba(38, 188, 140, 1);"></i>
+                                <p>{{ local("Add Page") }}</p>
                             </span>
                             <span @click="reviseItemPdf">
-                                <i
-                                    class="ms-Icon ms-Icon--PDF"
-                                    style="color: rgba(220, 62, 72, 1);"
-                                ></i>
-                                <p>{{local("Revise PDF")}}</p>
+                                <i class="ms-Icon ms-Icon--PDF" style="color: rgba(220, 62, 72, 1);"></i>
+                                <p>{{ local("Revise PDF") }}</p>
                             </span>
                             <span @click="show.metadata = true">
-                                <i
-                                    class="ms-Icon ms-Icon--LinkedDatabase"
-                                    style="color: rgba(229, 173, 70, 1);"
-                                ></i>
-                                <p>{{local("Revise Metadata")}}</p>
+                                <i class="ms-Icon ms-Icon--LinkedDatabase" style="color: rgba(229, 173, 70, 1);"></i>
+                                <p>{{ local("Revise Metadata") }}</p>
                             </span>
                             <span @click="openFile(`${currentItem.id}`)">
-                                <i
-                                    class="ms-Icon ms-Icon--FabricFolder"
-                                    style="color: rgba(229, 173, 70, 1);"
-                                ></i>
-                                <p>{{local("Open Folder")}}</p>
+                                <i class="ms-Icon ms-Icon--FabricFolder" style="color: rgba(229, 173, 70, 1);"></i>
+                                <p>{{ local("Open Folder") }}</p>
                             </span>
                             <hr>
                             <span @click="show.folder = true">
-                                <i
-                                    class="ms-Icon ms-Icon--FabricMovetoFolder"
-                                    style="color: rgba(0, 90, 158, 1);"
-                                ></i>
-                                <p>{{local("Copy to Partitions")}}</p>
+                                <i class="ms-Icon ms-Icon--FabricMovetoFolder" style="color: rgba(0, 90, 158, 1);"></i>
+                                <p>{{ local("Copy to Partitions") }}</p>
                             </span>
                             <span @click="show.rename = true">
-                                <i
-                                    class="ms-Icon ms-Icon--Rename"
-                                    style="color: rgba(0, 90, 158, 1);"
-                                ></i>
-                                <p>{{local("Rename Item")}}</p>
+                                <i class="ms-Icon ms-Icon--Rename" style="color: rgba(0, 90, 158, 1);"></i>
+                                <p>{{ local("Rename Item") }}</p>
                             </span>
-                            <span
-                                v-show="pid !== false"
-                                @click="deleteItemsFromPartition"
-                            >
-                                <i
-                                    class="ms-Icon ms-Icon--RemoveFrom"
-                                    style="color: rgba(220, 62, 72, 1);"
-                                ></i>
-                                <p>{{local("Remove From Partition")}}</p>
+                            <span v-show="pid !== false" @click="deleteItemsFromPartition">
+                                <i class="ms-Icon ms-Icon--RemoveFrom" style="color: rgba(220, 62, 72, 1);"></i>
+                                <p>{{ local("Remove From Partition") }}</p>
                             </span>
-                            <span
-                                v-show="pid === false"
-                                @click="deleteItem"
-                            >
-                                <i
-                                    class="ms-Icon ms-Icon--Delete"
-                                    style="color: rgba(220, 62, 72, 1);"
-                                ></i>
-                                <p>{{local("Delete Item")}}</p>
+                            <span v-show="pid === false" @click="deleteItem">
+                                <i class="ms-Icon ms-Icon--Delete" style="color: rgba(220, 62, 72, 1);"></i>
+                                <p>{{ local("Delete Item") }}</p>
                             </span>
                         </div>
                     </template>
@@ -247,27 +131,12 @@
             </div>
         </div>
         <add-item :show.sync="show.add"></add-item>
-        <rename-item
-            :value="currentItem"
-            :show.sync="show.rename"
-        ></rename-item>
-        <add-item-page
-            :show.sync="show.addItemPage"
-            :item="currentItem"
-        ></add-item-page>
-        <rename-item-page
-            :value="currentItemPage"
-            :show.sync="show.renameItemPage"
-            :item="currentItem"
-        ></rename-item-page>
-        <metadata-panel
-            v-model="show.metadata"
-            :item="currentItem"
-        ></metadata-panel>
-        <folder-window
-            v-model="show.folder"
-            @choose-partitions="copyItemsToPartitions"
-        ></folder-window>
+        <rename-item :value="currentItem" :show.sync="show.rename"></rename-item>
+        <add-item-page :show.sync="show.addItemPage" :item="currentItem"></add-item-page>
+        <rename-item-page :value="currentItemPage" :show.sync="show.renameItemPage" :item="currentItem">
+        </rename-item-page>
+        <metadata-panel v-model="show.metadata" :item="currentItem"></metadata-panel>
+        <folder-window v-model="show.folder" @choose-partitions="copyItemsToPartitions"></folder-window>
     </div>
 </template>
 
@@ -282,6 +151,7 @@ import metadataPanel from "@/components/home/metadataPanel.vue";
 import folderWindow from "@/components/general/folderWindow.vue";
 import emojiCallout from "@/components/general/callout/emojiCallout.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
+import { Drive, ConflictBehavior } from "msgraphapi"
 
 const path = require("path");
 
@@ -317,8 +187,8 @@ export default {
                     func: () => {
                         this.$barWarning(
                             this.local("Function is not supported yet."), {
-                                status: 'warning'
-                            }
+                            status: 'warning'
+                        }
                         );
                     },
                 },
@@ -403,7 +273,10 @@ export default {
     },
     computed: {
         ...mapState({
-            onedrive: state => state.onedrive,
+            /**
+             * @returns {Drive}
+             */
+            root: state => state.root,
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             items: (state) => state.data_structure.items,
@@ -477,16 +350,30 @@ export default {
                 this.filterItems = result;
             }
         },
-        itemsEnsureFolder() {
+        async itemsEnsureFolder() {
             if (!this.cur_db || this.data_index == -1) return;
             this.lock = false;
-            // ipc.send(
-            //     "ensure-folder",
-            //     path.join(this.data_path[this.data_index], "root/items")
-            // );
-            // ipc.on("ensure-folder-callback", () => {
-            //     this.lock = true;
-            // });
+            if (this.root !== null) {
+                try {
+                    await this.root.path().createListAsync({
+                        name: "root",
+                        conflict: ConflictBehavior.Fail
+                    })
+                    await this.root.path("root").createListAsync({
+                        name: "items",
+                        conflict: ConflictBehavior.Fail
+                    })
+                } catch {
+
+                } finally {
+                    try {
+                        await this.root.path("root/items").getAsync()
+                        this.lock = true;
+                    }
+                    catch {
+                    }
+                }
+            }
         },
         deleteItem() {
             if (!this.currentItem.id || !this.lock) return;
@@ -496,7 +383,8 @@ export default {
                 confirmTitle: this.local("Confirm"),
                 cancelTitle: this.local("Cancel"),
                 theme: this.theme,
-                confirm: () => {
+                confirm: async () => {
+                    console.log("delete")
                     this.lock = false;
                     let index = this.items.indexOf(
                         this.items.find((it) => it.id === this.currentItem.id)
@@ -506,17 +394,12 @@ export default {
                         $index: this.data_index,
                         items: this.items,
                     });
-                    // ipc.send(
-                    //     "remove-folder",
-                    //     path.join(
-                    //         this.data_path[this.data_index],
-                    //         `root/items/${this.currentItem.id}`
-                    //     )
-                    // );
+                    await this.root.clone().path(`root/items/${this.currentItem.id}`).delAsync()
                     this.delItemsFromPs([this.currentItem.id]);
                     this.lock = true;
+                    console.log(this.currentItem.id)
                 },
-                cancel: () => {},
+                cancel: () => { },
             });
         },
         deleteItems() {
@@ -527,11 +410,11 @@ export default {
                 confirmTitle: this.local("Confirm"),
                 cancelTitle: this.local("Cancel"),
                 theme: this.theme,
-                confirm: () => {
+                confirm: async () => {
                     this.lock = false;
                     let ids = [];
                     let copy = JSON.parse(JSON.stringify(this.currentChoosen));
-                    copy.forEach((el) => {
+                    for (let el of copy) {
                         ids.push(el.id);
                         let index = this.items.indexOf(
                             this.items.find((it) => it.id === el.id)
@@ -541,19 +424,13 @@ export default {
                             $index: this.data_index,
                             items: this.items,
                         });
-                        // ipc.send(
-                        //     "remove-folder",
-                        //     path.join(
-                        //         this.data_path[this.data_index],
-                        //         `root/items/${el.id}`
-                        //     )
-                        // );
+                        await this.root.clone().path(`root/items/${el.id}`).delAsync()
                         this.delItemsFromPs(ids);
                         this.currentChoosen = [];
                         this.lock = true;
-                    });
+                    }
                 },
-                cancel: () => {},
+                cancel: () => { },
             });
         },
         delItemsFromPs(ids) {
@@ -736,16 +613,9 @@ export default {
                         $index: this.data_index,
                         items: this.items,
                     });
-                    // ipc.send(
-                    //     "remove-file",
-                    //     path.join(
-                    //         this.data_path[this.data_index],
-                    //         `root/items/${item.id}`,
-                    //         `${pageId}.json`
-                    //     )
-                    // );
+                    await this.root.clone().path(`root/items/${item.id}/${pageId}.json`).delAsync()
                 },
-                cancel: () => {},
+                cancel: () => { },
             });
         },
     },

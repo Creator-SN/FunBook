@@ -372,7 +372,6 @@ export default {
         },
         dfsTree(groupItem) {
             let obj = JSON.parse(JSON.stringify(groupItem));
-
             obj.children = obj.groups;
             obj.editable = obj.editable == undefined ? false : obj.editable;
             obj.type = "group";

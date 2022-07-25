@@ -190,14 +190,9 @@ export default {
                 this.$set(this.thisValue, this.thisValue.indexOf(el), el);
             }
             for (let el of this.thisValue) {
-                let url = path.join(
-                    this.data_path[this.data_index],
-                    "root/templates",
-                    `${el.id}.json`
-                );
                 promises.push(
                     new Promise((resolve) => {
-                        this.cur_db.readFile(url).then((data) => {
+                        this.cur_db.readFile(`root/templates/${el.id}.json`).then((data) => {
                             let content = data;
                             try {
                                 el.content = JSON.parse(content);

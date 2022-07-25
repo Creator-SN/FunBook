@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import { ConflictBehavior, Drive, GraphAPI } from "msgraphapi"
 
 Vue.use(Vuex);
 
@@ -12,8 +13,14 @@ export default new Vuex.Store({
         language: 'en',
         theme: 'light',
         // OneDrive //
-        user: null,
-        onedrive: null,
+        /**
+         * @type {GraphAPI}
+         */
+        graphAPI: null,
+        /**
+         * @type {Drive}
+         */
+        root: null,
         userInfo: null,
         progress: 0,
         // ds //
@@ -45,11 +52,11 @@ export default new Vuex.Store({
         i18n: {}
     },
     mutations: {
-        reviseUser(state, obj) {
-            state.user = obj;
+        setGraphAPI(state, graphAPI) {
+            state.graphAPI = graphAPI;
         },
-        reviseOnedrive(state, obj) {
-            state.onedrive = obj;
+        setRootAPI(state, root) {
+            state.root = root;
         },
         reviseConfig(state, obj) {
             for (let key in obj) {
@@ -66,6 +73,28 @@ export default new Vuex.Store({
                     continue;
                 state.data_structure[key] = obj[key];
                 // state.dbList[obj.$index].set(key, state.data_structure[key]).write();
+            }
+             // 应该经过四个部分——上锁，版本对比（需要保存上一个版本副本），修改，释放锁
+            // TODO: 版本控制  
+            if (state.root !== null) {
+                // 创建锁文件
+                const lockFile = new File([], "~$data_structure.json", {
+                    type: "application/json"
+                })
+                state.root.clone().path(lockFile.name).uploadAsync({
+                    file: lockFile,
+                    conflict: ConflictBehavior.Fail
+                }).then(() => {
+                    const file = new File([JSON.stringify(state.data_structure)], "data_structure.json", {
+                        type: "application/json"
+                    })
+                    state.root.clone().path(file.name).uploadAsync({
+                        file,
+                        conflict: ConflictBehavior.Replace
+                    }).then(()=>{
+                        state.root.clone().path(lockFile.name).delAsync()
+                    })
+                })
             }
         },
         reviseData(state, obj) {
@@ -118,7 +147,7 @@ export default new Vuex.Store({
             } else {
                 state.theme = 'light'
             }
-            if(v)
+            if (v)
                 console.log(state.theme);
             // v.$config_db.set('theme', state.theme).write();
             document.querySelector('meta[name="theme-color"]').setAttribute('content', state.theme === 'light' ? 'rgba(245, 245, 245, 1)' : 'rgba(36, 36, 36, 1)');

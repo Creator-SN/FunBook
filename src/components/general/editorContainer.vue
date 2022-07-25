@@ -1,209 +1,101 @@
 <template>
     <transition :name="show_editor ? 'move-right-to-left' : 'move-left-to-right'">
-        <div
-            v-show="show_editor"
-            class="ikfb-editor-container"
-            :class="[{ dark: theme == 'dark', fullScreen: windowWidth <= 768 || fullScreen }]"
-        >
+        <div v-show="show_editor" class="ikfb-editor-container"
+            :class="[{ dark: theme == 'dark', fullScreen: windowWidth <= 768 || fullScreen }]">
             <div class="control-banner">
                 <div class="control-left-block">
-                    <fv-button
-                        v-if="item && item.pages"
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        @click="show.quickNav ^= true"
-                    >
-                        <i
-                            class="ms-Icon"
-                            :class="[
+                    <fv-button v-if="item && item.pages" :theme="theme" :borderRadius="30" class="control-btn"
+                        @click="show.quickNav ^= true">
+                        <i class="ms-Icon" :class="[
                             show.quickNav
                                 ? 'ms-Icon--RemoveFromShoppingList'
                                 : 'ms-Icon--PageList',
-                        ]"
-                        ></i>
+                        ]"></i>
                     </fv-button>
-                    <fv-button
-                    v-show="windowWidth > 768"
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        @click="fullScreen ^= true"
-                    >
-                        <i
-                            class="ms-Icon"
-                            :class="[
+                    <fv-button v-show="windowWidth > 768" :theme="theme" :borderRadius="30" class="control-btn"
+                        @click="fullScreen ^= true">
+                        <i class="ms-Icon" :class="[
                             fullScreen
                                 ? 'ms-Icon--BackToWindow'
                                 : 'ms-Icon--FullScreen',
-                        ]"
-                        ></i>
+                        ]"></i>
                     </fv-button>
-                    <fv-button
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        @click="readonly = readonly == true ? false : true"
-                    ><i
-                            class="ms-Icon"
-                            :class="[
-                            `ms-Icon--${
-                                readonly === true ? 'PageEdit' : 'ReadingMode'
+                    <fv-button :theme="theme" :borderRadius="30" class="control-btn"
+                        @click="readonly = readonly == true ? false : true"><i class="ms-Icon" :class="[
+                            `ms-Icon--${readonly === true ? 'PageEdit' : 'ReadingMode'
                             }`,
-                        ]"
-                        ></i></fv-button>
-                    <fv-button
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        @click="expandContent = expandContent == true ? false : true"
-                    ><i
-                            class="ms-Icon"
-                            :class="[
-                            `ms-Icon--${
-                                expandContent === true ? 'StaplingPortraitBookBinding' : 'StaplingLandscapeTwoTop'
+                        ]"></i></fv-button>
+                    <fv-button :theme="theme" :borderRadius="30" class="control-btn"
+                        @click="expandContent = expandContent == true ? false : true"><i class="ms-Icon" :class="[
+                            `ms-Icon--${expandContent === true ? 'StaplingPortraitBookBinding' : 'StaplingLandscapeTwoTop'
                             }`,
-                        ]"
-                        ></i></fv-button>
-                    <fv-button
-                        v-show="unsave"
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        background="rgba(0, 204, 153, 1)"
-                    >
+                        ]"></i></fv-button>
+                    <fv-button v-show="unsave" :theme="theme" :borderRadius="30" class="control-btn"
+                        background="rgba(0, 204, 153, 1)">
                         {{ "" }}
                     </fv-button>
                 </div>
                 <div class="control-right-block">
-                    <fv-toggle-switch
-                        :title="local('Auto Save')"
-                        v-model="auto_save"
-                        class="save-btn"
-                        :on="local('Turn Off Auto Save')"
-                        :off="local('Turn On Auto Save')"
+                    <fv-toggle-switch :title="local('Auto Save')" v-model="auto_save" class="save-btn"
+                        :on="local('Turn Off Auto Save')" :off="local('Turn On Auto Save')"
                         :onForeground="theme === 'dark' ? '#fff' : '#000'"
-                        :offForeground="theme === 'dark' ? '#fff' : '#000'"
-                    >
+                        :offForeground="theme === 'dark' ? '#fff' : '#000'">
                     </fv-toggle-switch>
-                    <fv-button
-                        :theme="theme"
-                        :borderRadius="30"
-                        class="control-btn"
-                        @click="close"
-                    >
+                    <fv-button :theme="theme" :borderRadius="30" class="control-btn" @click="close">
                         <i class="ms-Icon ms-Icon--Cancel"></i>
                     </fv-button>
                 </div>
             </div>
-            <div
-                v-if="showNav"
-                class="nav-banner"
-            >
-                <fv-Breadcrumb
-                    :value="`${item.name}/${target.name}`"
-                    :disabled="history.length === 0"
-                    :theme="theme"
+            <div v-if="showNav" class="nav-banner">
+                <fv-Breadcrumb :value="`${item.name}/${target.name}`" :disabled="history.length === 0" :theme="theme"
                     :rootIcon="history.length > 0 ? 'PageLeft' : 'FolderHorizontal'"
-                    style="font-size: 12px; white-space: nowrap;"
-                    @root-click="back"
-                ></fv-Breadcrumb>
+                    style="font-size: 12px; white-space: nowrap;" @root-click="back"></fv-Breadcrumb>
             </div>
-            <power-editor
-                v-show="lock.loading"
-                :value="content"
-                :placeholder="local('Write something ...')"
-                :editable="!readonly"
-                :theme="theme"
-                :language="language"
-                :editorOutSideBackground="
+            <power-editor v-show="lock.loading" :value="content" :placeholder="local('Write something ...')"
+                :editable="!readonly" :theme="theme" :language="language" :editorOutSideBackground="
                     theme == 'dark' ? 'rgba(47, 52, 55, 1)' : 'white'
-                "
-                :contentMaxWidth="expandContent ? '99999px' : '900px'"
-                :mobileDisplayWidth="768"
-                :mentionItemAttr="editorMentionItemAttr"
-                ref="editor"
-                :style="{height: `calc(100% - ${showNav ? 80 : 40}px)`, 'font-size': `${fontSize}px`}"
-                style="
+                " :contentMaxWidth="expandContent ? '99999px' : '900px'" :mobileDisplayWidth="768"
+                :mentionItemAttr="editorMentionItemAttr" ref="editor"
+                :style="{ height: `calc(100% - ${showNav ? 80 : 40}px)`, 'font-size': `${fontSize}px` }" style="
                     position: relative;
                     width: 100%;
                     height: calc(100% - 40px);
                     flex: 1;
-                "
-                @save-json="saveContent"
-                @click.native="show.quickNav = false"
-            ></power-editor>
-            <div
-                v-show="!lock.loading"
-                class="loading-block"
-            >
-                <fv-progress-ring
-                    loading="true"
-                    r="20"
-                    borderWidth="5"
-                    background="rgba(255, 255, 255, 0.1)"
-                ></fv-progress-ring>
+                " @save-json="saveContent" @click.native="show.quickNav = false"></power-editor>
+            <div v-show="!lock.loading" class="loading-block">
+                <fv-progress-ring loading="true" r="20" borderWidth="5" background="rgba(255, 255, 255, 0.1)">
+                </fv-progress-ring>
             </div>
-            <div
-                class="bottom-control"
-                :class="[{dark: theme == 'dark'}, {close: !show.bottomControl}]"
-            >
-                <i
-                    class="ms-Icon trigger"
-                    :class="[`ms-Icon--${show.bottomControl ? 'ChevronRightMed' : 'ChevronLeftMed'}`]"
-                    style="flex: 1;"
-                    @click="show.bottomControl ^= true"
-                ></i>
-                <fv-slider
-                    v-show="show.bottomControl"
-                    v-model="fontSize"
-                    :mininum="12"
-                    :maxinum="72"
-                    icon="RadioBullet"
-                    color="rgba(87, 156, 193, 1)"
-                    :showLabel="true"
-                    style="width: 150px; margin-right: 15px;"
-                >
+            <div class="bottom-control" :class="[{ dark: theme == 'dark' }, { close: !show.bottomControl }]">
+                <i class="ms-Icon trigger"
+                    :class="[`ms-Icon--${show.bottomControl ? 'ChevronRightMed' : 'ChevronLeftMed'}`]" style="flex: 1;"
+                    @click="show.bottomControl ^= true"></i>
+                <fv-slider v-show="show.bottomControl" v-model="fontSize" :mininum="12" :maxinum="72" icon="RadioBullet"
+                    color="rgba(87, 156, 193, 1)" :showLabel="true" style="width: 150px; margin-right: 15px;">
                     <template slot-scope="prop">
-                        <p style="margin: 5px;">{{prop.value}}px</p>
+                        <p style="margin: 5px;">{{ prop.value }}px</p>
                     </template>
                 </fv-slider>
             </div>
             <transition :name="!show.quickNav ? 'move-right-to-left' : 'move-left-to-right'">
-                <div
-                    v-if="item && item.id"
-                    v-show="show.quickNav"
-                    class="quick-nav-block"
-                    :class="[{dark: theme == 'dark'}]"
-                >
-                    <div
-                        v-for="(page, index) in item.pages"
-                        :key="index"
-                        class="item"
-                        :class="[{choosen: page.id == target.id}]"
-                        @click="openEditor(item, page)"
-                    >
-                        <p>{{page.emoji}}</p>
+                <div v-if="item && item.id" v-show="show.quickNav" class="quick-nav-block"
+                    :class="[{ dark: theme == 'dark' }]">
+                    <div v-for="(page, index) in item.pages" :key="index" class="item"
+                        :class="[{ choosen: page.id == target.id }]" @click="openEditor(item, page)">
+                        <p>{{ page.emoji }}</p>
                         <div class="info-content-block">
-                            <p class="highlight">{{page.name}}</p>
-                            <p class="sec date">{{page.id}}</p>
+                            <p class="highlight">{{ page.name }}</p>
+                            <p class="sec date">{{ page.id }}</p>
                         </div>
-                        <p class="sec">{{page.createDate}}</p>
+                        <p class="sec">{{ page.createDate }}</p>
                     </div>
-                    <div
-                        class="item"
-                        @click="show.addItemPage = true"
-                    >
+                    <div class="item" @click="show.addItemPage = true">
                         <i class="ms-Icon ms-Icon--Add"></i>
-                        <p style="margin-left: 15px;">{{local("Add Page")}}</p>
+                        <p style="margin-left: 15px;">{{ local("Add Page") }}</p>
                     </div>
                 </div>
             </transition>
-            <add-item-page
-                v-if="item && item.id"
-                :show.sync="show.addItemPage"
-                :item="item"
-            ></add-item-page>
+            <add-item-page v-if="item && item.id" :show.sync="show.addItemPage" :item="item"></add-item-page>
         </div>
     </transition>
 </template>
@@ -212,8 +104,7 @@
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 import addItemPage from "@/components/home/addItemPage.vue";
-
-const path = require("path");
+import { ConflictBehavior } from "msgraphapi";
 
 export default {
     components: {
@@ -278,6 +169,7 @@ export default {
     },
     computed: {
         ...mapState({
+            root: (state) => state.root,
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             templates: (state) => state.data_structure.templates,
@@ -311,7 +203,7 @@ export default {
                 this.items.forEach((el, idx) => {
                     if (
                         el.name.toLowerCase().indexOf(value.toLowerCase()) >
-                            -1 ||
+                        -1 ||
                         el.name
                             .toLowerCase()
                             .indexOf(value.split("/")[0].toLowerCase()) > -1
@@ -408,14 +300,9 @@ export default {
                 this.type === "template" ? "root/templates" : "root/items";
             if (this.type === "item") {
                 if (!this.item) return;
-                folder = path.join(folder, this.item.id);
+                folder = `${folder}/${this.item.id}`;
             }
-            let url = path.join(
-                this.data_path[this.data_index],
-                folder,
-                `${this.target.id}.json`
-            );
-            let content = await this.cur_db.readFile(url);
+            let content = await this.cur_db.readFile(`${folder}/${this.target.id}.json`);
             try {
                 this.content = JSON.parse(content);
                 this.lock.loading = true;
@@ -431,32 +318,27 @@ export default {
             }
         },
         async saveContent(json) {
-            console.log(json);
-            // if (!this.type || !this.target.id) return;
-            // let folder =
-            //     this.type === "template" ? "root/templates" : "root/items";
-            // if (this.type === "item") {
-            //     if (!this.item) return;
-            //     folder = path.join(folder, this.item.id);
-            // }
-            // let url = path.join(
-            //     this.data_path[this.data_index],
-            //     folder,
-            //     `${this.target.id}.json`
-            // );
-            // ipc.send("output-file", {
-            //     path: url,
-            //     data: JSON.stringify(json),
-            // });
-            // await new Promise((resolve) => {
-            //     ipc.on("output-file-callback", () => {
-            //         resolve(1);
-            //     });
-            // });
-            // this.unsave = false;
+            if (!this.type || !this.target.id) return;
+            let folder =
+                this.type === "template" ? "root/templates" : "root/items";
+            if (this.type === "item") {
+                if (!this.item) return;
+                folder = `${folder}/${this.item.id}`;
+            }
+            const parent = await this.root.clone().path(folder).getAsync()
+            if (parent !== undefined) {
+                await this.root.clone().item(parent.id).path(`${this.target.id}.json`).uploadAsync({
+                    file: new File([JSON.stringify(json)], `${this.target.id}.json`, {
+                        type: "application/json"
+                    }),
+                    conflict: ConflictBehavior.Replace
+                })
+                this.unsave = false;
+            }
         },
         openEditor(item, page) {
             if (!this.lock.loading) return;
+
             if (this.type === "item" && this.item && this.target) {
                 this.history.push({
                     type: this.type,
@@ -500,7 +382,6 @@ export default {
             let editorContent = this.$el.querySelectorAll(
                 ".tip-tap-editor-container"
             )[0];
-            console.log(editorContent);
             if (!editorContent) return;
             editorContent.scrollTop = top;
         },
@@ -523,7 +404,7 @@ export default {
                         confirm: () => {
                             this.toggleEditor(false);
                         },
-                        cancel: () => {},
+                        cancel: () => { },
                     }
                 );
             } else this.toggleEditor(false);

@@ -10,6 +10,8 @@ module.exports = {
     rules: {
         "no-console": process.env.NODE_ENV === "production" ? "off" : "off",
         "no-debugger": process.env.NODE_ENV === "production" ? "off" : "off",
-        'space-before-function-paren' : 0,
+        'space-before-function-paren': 0,
+        'no-empty': 'off',
+        'no-unused-vars':'off'
     },
 };

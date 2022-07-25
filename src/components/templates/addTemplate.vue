@@ -2,21 +2,24 @@
     <float-window-base v-model="thisShow" :title="local('Add Template')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block">
-                <p class="w-title">{{local('Template Name')}}</p>
-                <fv-text-box v-model="name" :placeholder="local('Input template name...')" :theme="theme" @keyup.enter="add"></fv-text-box>
+                <p class="w-title">{{ local('Template Name') }}</p>
+                <fv-text-box v-model="name" :placeholder="local('Input template name...')" :theme="theme"
+                    @keyup.enter="add"></fv-text-box>
             </div>
         </template>
         <template v-slot:control>
-            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !cur_db" @click="add">{{local('Confirm')}}</fv-button>
-            <fv-button :theme="theme" @click="thisShow = false">{{local('Cancel')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !cur_db" @click="add">
+                {{ local('Confirm') }}</fv-button>
+            <fv-button :theme="theme" @click="thisShow = false">{{ local('Cancel') }}</fv-button>
         </template>
     </float-window-base>
 </template>
 
 <script>
 import floatWindowBase from "../window/floatWindowBase.vue";
-import {page} from "@/js/data_sample.js";
+import { page } from "@/js/data_sample.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
+import { ConflictBehavior } from "msgraphapi";
 // const { ipcRenderer: ipc } = require("electron");
 // const path = require("path");
 
@@ -36,17 +39,18 @@ export default {
         };
     },
     watch: {
-        show (val) {
+        show(val) {
             this.thisShow = val;
         },
-        thisShow (val) {
+        thisShow(val) {
             this.$emit("update:show", val);
             this.name = "";
         }
     },
     computed: {
         ...mapState({
-            data_index: (state) => state.data_index,            
+            root: (state) => state.root,
+            data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
             templates: state => state.data_structure.templates,
             theme: (state) => state.theme,
@@ -60,8 +64,8 @@ export default {
         ...mapMutations({
             reviseDS: "reviseDS",
         }),
-        async add () {
-            if(!this.cur_db || this.name === '')
+        async add() {
+            if (!this.cur_db || this.name === '')
                 return;
             let _page = JSON.parse(JSON.stringify(page));
             _page.id = this.$Guid();
@@ -73,16 +77,12 @@ export default {
                 $index: this.data_index,
                 templates: this.templates
             });
-            // let url = path.join(this.data_path[this.data_index], 'root/templates', `${_page.id}.json`);
-            // ipc.send('output-file', {
-            //     path: url,
-            //     data: ""
-            // });
-            // await new Promise(resolve => {
-            //     ipc.on('output-file-callback', () => {
-            //         resolve(1);
-            //     });
-            // })
+            await this.root.clone().path(`root/templates/${_page.id}.json`).uploadAsync({
+                file: new File([], `${_page.id}.json`, {
+                    type: "application/json"
+                }),
+                conflict: ConflictBehavior.Fail
+            })
             this.thisShow = false;
         }
     },

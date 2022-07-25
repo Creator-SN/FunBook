@@ -5,10 +5,7 @@
             <ul class="api-list">
                 <li class="api-item">
                     <div class="title">ONEDRIVE</div>
-                    <input
-                        type="file"
-                        ref="file"
-                    />
+                    <input type="file" ref="file" />
                     <button @click="uploadLarge">上传</button>
                 </li>
             </ul>
@@ -18,12 +15,12 @@
 
 <script>
 /* eslint-disabled */
-import { client, OneDrive } from "@/libs/msal";
+import { GraphAPI } from "msgraphapi"
 // import { OnlineDB } from "@/js/onlineDB.js";
 
 export default {
     name: "OneDrive",
-    mounted () {
+    mounted() {
         // let db = new OnlineDB(new OneDrive(client));
         // db.initDB("/Documents/Papers/IKFB");
     },
@@ -61,6 +58,7 @@ body {
     margin: 0;
     padding: 0;
 }
+
 ul,
 li {
     list-style: none;
@@ -82,6 +80,7 @@ li {
     color: white;
     background: #303952;
 }
+
 .api-list {
     .api-item {
         .title {

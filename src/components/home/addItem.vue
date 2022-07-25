@@ -1,70 +1,31 @@
 <template>
-    <float-window-base
-        v-model="thisShow"
-        :title="local('Add Item')"
-        :theme="theme"
-    >
+    <float-window-base v-model="thisShow" :title="local('Add Item')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block">
-                <p class="w-title">{{local('Item Name')}}</p>
-                <fv-text-box
-                    v-model="name"
-                    :placeholder="local('Input item name...')"
-                    :theme="theme"
-                    :font-size="18"
-                    :font-weight="'bold'"
-                    underline
-                    :focus-border-color="'rgba(123, 139, 209, 1)'"
-                    :is-box-shadow="true"
-                    style="width: 100%; height: 60px; margin-top: 15px;"
-                    @keyup.enter="add"
-                ></fv-text-box>
+                <p class="w-title">{{ local('Item Name') }}</p>
+                <fv-text-box v-model="name" :placeholder="local('Input item name...')" :theme="theme" :font-size="18"
+                    :font-weight="'bold'" underline :focus-border-color="'rgba(123, 139, 209, 1)'" :is-box-shadow="true"
+                    style="width: 100%; height: 60px; margin-top: 15px;" @keyup.enter="add"></fv-text-box>
             </div>
             <div class="w-p-block">
-                <p class="w-title">{{local('Item Labels')}}</p>
+                <p class="w-title">{{ local('Item Labels') }}</p>
             </div>
             <div class="w-p-row">
-                <fv-check-box
-                    v-model="item.check"
-                    v-for="(item, index) in colorList"
-                    :key="index"
-                    :border-color="item.color"
-                    :background="item.color"
-                    @click="chooseColor(index)"
-                ></fv-check-box>
+                <fv-check-box v-model="item.check" v-for="(item, index) in colorList" :key="index"
+                    :border-color="item.color" :background="item.color" @click="chooseColor(index)"></fv-check-box>
             </div>
             <div class="w-p-block">
-                <fv-text-box
-                    v-model="label"
-                    :placeholder="local('New item label (Press Enter)')"
-                    icon="Tag"
-                    :theme="theme"
-                    :border-color="currentColor"
-                    @keyup.enter="addLabel"
-                ></fv-text-box>
+                <fv-text-box v-model="label" :placeholder="local('New item label (Press Enter)')" icon="Tag"
+                    :theme="theme" :border-color="currentColor" @keyup.enter="addLabel"></fv-text-box>
             </div>
-            <div
-                class="w-p-block"
-                style="overflow-x: auto;"
-            >
-                <fv-tag
-                    v-model="labels"
-                    :theme="theme"
-                    :isDel="true"
-                ></fv-tag>
+            <div class="w-p-block" style="overflow-x: auto;">
+                <fv-tag v-model="labels" :theme="theme" :isDel="true"></fv-tag>
             </div>
         </template>
         <template v-slot:control>
-            <fv-button
-                theme="dark"
-                background="rgba(0, 153, 204, 1)"
-                :disabled="name === '' || !cur_db"
-                @click="add"
-            >{{local('Confirm')}}</fv-button>
-            <fv-button
-                :theme="theme"
-                @click="thisShow = false"
-            >{{local('Cancel')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="name === '' || !cur_db" @click="add">
+                {{ local('Confirm') }}</fv-button>
+            <fv-button :theme="theme" @click="thisShow = false">{{ local('Cancel') }}</fv-button>
         </template>
     </float-window-base>
 </template>
@@ -73,6 +34,7 @@
 import floatWindowBase from "../window/floatWindowBase.vue";
 import { item } from "@/js/data_sample.js";
 import { mapMutations, mapState, mapGetters } from "vuex";
+import { ConflictBehavior } from "msgraphapi";
 
 export default {
     components: {
@@ -117,6 +79,7 @@ export default {
     },
     computed: {
         ...mapState({
+            root: (state) => state.root,
             data_index: (state) => state.data_index,
             data_path: (state) => state.data_path,
             items: (state) => state.data_structure.items,
@@ -155,16 +118,10 @@ export default {
                 items: this.items,
             });
             this.copyToPartition(_item);
-            this.revisePdfImporter({
-                c: this.c + 1,
-            });
-            // let url = path.join(this.data_path[this.data_index], `root/items/${_item.id}`);
-            // ipc.send('ensure-folder', url);
-            // await new Promise(resolve => {
-            //     ipc.on('ensure-folder-callback', () => {
-            //         resolve(1);
-            //     });
-            // })
+            await this.root.clone().path(`root/items`).createListAsync({
+                name:_item.id,
+                conflict: ConflictBehavior.Fail
+            })
             this.thisShow = false;
         },
         copyToPartition(item) {

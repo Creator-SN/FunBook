@@ -134,7 +134,8 @@
 <script>
 import { mapMutations, mapState, mapGetters } from "vuex";
 import addDs from "@/components/settings/addDs.vue";
-
+//eslint-disable-next-line no-unused-vars
+import { GraphAPI, LoginType } from "msgraphapi";
 import OneDrive from "@/assets/settings/OneDrive.svg";
 
 export default {
@@ -170,7 +171,10 @@ export default {
     },
     computed: {
         ...mapState({
-            user: state => state.user,
+            /**
+             * @returns {GraphAPI}
+             */
+            graphAPI: state=>state.graphAPI,
             userInfo: state => state.userInfo,
             init_status: (state) => state.init_status,
             data_index: (state) => state.data_index,
@@ -260,14 +264,20 @@ export default {
             );
         },
         login () {
-            window.location.reload();
+            this.graphAPI.loginAsync(LoginType.Popup).then(async (res)=>{
+                let accounts = this.graphAPI.getAccounts();
+                if (accounts.length>0){
+                    this.graphAPI.setActiveAccount(accounts[0]);
+                }
+                console.log(accounts,res)
+            })
         },
         async logout () {
-            await this.user.logout();
-            this.user.getActiveAccount().then(res => {
-                this.cleanLocalStorage();
-                console.log(res)
-            });
+            // await this.user.logout();
+            // this.user.getActiveAccount().then(res => {
+            //     this.cleanLocalStorage();
+            //     console.log(res)
+            // });
         }
     },
 };

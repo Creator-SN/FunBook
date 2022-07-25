@@ -1,14 +1,8 @@
 <template>
-    <div
-        id="app"
-        :class="{dark: theme == 'dark'}"
-    >
+    <div id="app" :class="{ dark: theme == 'dark' }">
         <navigation-view ref="nav"></navigation-view>
         <transition :name="(windowWidth > 768 || !show_editor) ? 'scale-up-to-up' : 'scale-down-to-down'">
-            <div
-                v-show="windowWidth > 768 || !show_editor"
-                class="addition-container"
-            >
+            <div v-show="windowWidth > 768 || !show_editor" class="addition-container">
                 <div class="global-container">
                     <keep-alive>
                         <router-view></router-view>
@@ -33,7 +27,7 @@ import editorContainer from "@/components/general/editorContainer.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 import { data_structure } from "@/js/data_sample";
-import { user, onedrive } from "./libs/msal";
+import { GraphAPI, PermissionScope } from "msgraphapi";
 
 export default {
     name: "App",
@@ -60,8 +54,10 @@ export default {
     },
     computed: {
         ...mapState({
-            user: (state) => state.user,
-            onedrive: (state) => state.onedrive,
+            /**
+             * @returns {GraphAPI}
+             */
+            graphAPI: (state) => state.graphAPI,
             userInfo: (state) => state.userInfo,
             init_status: (state) => state.init_status,
             data_path: (state) => state.data_path,
@@ -76,7 +72,7 @@ export default {
     },
     mounted() {
         this.getLocalStorage();
-        this.onedirveInit();
+        this.onedriveInit();
         this.syncDSDB();
         this.i18nInit();
         this.refreshWindowSizeInit();
@@ -84,8 +80,8 @@ export default {
     },
     methods: {
         ...mapMutations({
-            reviseUser: "reviseUser",
-            reviseOnedrive: "reviseOnedrive",
+            setGraphAPI: "setGraphAPI",
+            setRootAPI: "setRootAPI",
             reviseConfig: "reviseConfig",
             reviseData: "reviseData",
             reviseDS: "reviseDS",
@@ -108,47 +104,18 @@ export default {
                 });
             }, 100);
         },
-        async onedirveInit() {
-            this.reviseUser(user);
-            this.reviseOnedrive(onedrive);
-            this.updateProgress(30);
-            let accountList = await this.user.getAccounts();
-            if (accountList.length === 0) accountList = await this.login();
-
-            this.updateProgress(60);
-            await this.user.setActiveAccount(accountList[0]);
-            this.updateProgress(90);
-            let userInfo = await this.user.getActiveAccount();
-            this.updateProgress(100);
-            this.reviseConfig({ userInfo });
-            this.updateProgress(101);
-            console.log(userInfo);
-        },
-        async login() {
-            this.user.login("redirect");
-            let i = 0;
-            while (i < 3000) {
-                let accountList = await new Promise((resolve) => {
-                    setTimeout(() => {
-                        this.user.getAccounts().then((res) => {
-                            resolve(res);
-                        });
-                    }, 100);
-                });
-                this.updateProgress(30 + i / 100);
-                if (accountList.length > 0) {
-                    i = 999999;
-                    return accountList;
-                }
-                i = i + 1;
-            }
-            return [];
+        async onedriveInit() {
+            let graphAPI = new GraphAPI({
+                clientId: "04504778-db6b-4ac9-8685-94f3996766d4",
+                scopes: [PermissionScope.UserReadAll, PermissionScope.FilesReadWriteAll]
+            })
+            this.setGraphAPI(graphAPI)
         },
         async syncDSDB() {
             // 同步数据库
             let pathList = this.data_path;
             let oneDriveDBXListResponse = await this.$load_ds_file(
-                this.onedrive,
+                this.graphAPI,
                 pathList,
                 this.updateProgress
             );
@@ -174,13 +141,21 @@ export default {
             });
             this.syncDS();
         },
-        syncDS() {
+        async syncDS() {
             // sync data structure
             if (!this.cur_db) return 0;
             let _data_structure = JSON.parse(JSON.stringify(data_structure));
             Object.assign(_data_structure, this.cur_db.ds);
             _data_structure.$index = this.data_index;
             this.reviseDS(_data_structure);
+            let root = this.graphAPI.OneDrive.Drive().path(this.data_path[this.data_index])
+            let rootInfo = await root.getAsync()
+            if (rootInfo.remoteItem) {
+                root = root.drive(rootInfo.remoteItem.parentReference.driveId).item(rootInfo.remoteItem.id).path()
+            } else {
+                root = root.path().item(rootInfo.id)
+            }
+            this.setRootAPI(root)
         },
         updateProgress(value) {
             this.reviseConfig({
@@ -233,10 +208,12 @@ body {
             width: 10px;
         }
     }
+
     /*定义滚动条轨道 内阴影+圆角*/
     ::-webkit-scrollbar-track {
         border-radius: 10px;
     }
+
     /*定义滑块 内阴影+圆角*/
     ::-webkit-scrollbar-thumb {
         border-radius: 10px;
@@ -289,14 +266,17 @@ body {
     .move-bottom-to-top-enter-active {
         animation: moveFromBottom 0.25s ease both;
     }
+
     .move-bottom-to-top-leave-active {
         animation: moveToTop 0.25s ease both;
     }
+
     @keyframes moveFromBottom {
         from {
             transform: translateY(30%);
         }
     }
+
     @keyframes moveToTop {
         to {
             transform: translateY(-30%);

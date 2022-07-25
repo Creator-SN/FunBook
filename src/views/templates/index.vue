@@ -1,55 +1,32 @@
 <template>
-    <div
-        class="ikfb-templates-container"
-        :class="[{dark: theme === 'dark'}]"
-    >
+    <div class="ikfb-templates-container" :class="[{ dark: theme === 'dark' }]">
         <div class="s-row">
-            <p class="s-title">{{local('Templates')}}</p>
+            <p class="s-title">{{ local('Templates') }}</p>
         </div>
         <div class="m-templates-block">
             <div class="row between">
-                <fv-text-box
-                    v-model="currentSearch"
-                    :placeholder="local('Filtering from current content')"
-                    :theme="theme"
-                    :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
-                    icon="Filter"
-                    borderWidth="2"
-                    :revealBorder="true"
-                    style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"
-                ></fv-text-box>
+                <fv-text-box v-model="currentSearch" :placeholder="local('Filtering from current content')"
+                    :theme="theme" :background="theme === 'dark' ? 'rgba(75, 75, 75, 1)' : 'rgba(245, 245, 245, 1)'"
+                    icon="Filter" borderWidth="2" :revealBorder="true"
+                    style="box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.1)"></fv-text-box>
             </div>
             <div class="row command-bar">
-                <fv-command-bar
-                    :options="cmd"
-                    :theme="theme"
-                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'"
-                    style="flex: 1"
-                ></fv-command-bar>
+                <fv-command-bar :options="cmd" :theme="theme"
+                    :background="theme === 'dark' ? 'transparent' : 'rgba(245, 245, 245, 1)'" style="flex: 1">
+                </fv-command-bar>
             </div>
             <div class="row main-table">
-                <template-grid
-                    :value="templates"
-                    :filter="currentSearch"
-                    @rightclick="currentItem = $event"
-                    @choose-items="currentChoosen = $event"
-                    @item-click="openEditor($event)"
-                >
+                <template-grid :value="templates" :filter="currentSearch" @rightclick="currentItem = $event"
+                    @choose-items="currentChoosen = $event" @item-click="openEditor($event)">
                     <template v-slot:menu>
                         <div>
                             <span @click="show.rename = true">
-                                <i
-                                    class="ms-Icon ms-Icon--Rename"
-                                    style="color: rgba(0, 153, 204, 1);"
-                                ></i>
-                                <p>{{local("Rename Template")}}</p>
+                                <i class="ms-Icon ms-Icon--Rename" style="color: rgba(0, 153, 204, 1);"></i>
+                                <p>{{ local("Rename Template") }}</p>
                             </span>
                             <span @click="deleteTemplate">
-                                <i
-                                    class="ms-Icon ms-Icon--Delete"
-                                    style="color: rgba(173, 38, 45, 1);"
-                                ></i>
-                                <p>{{local("Delete Template")}}</p>
+                                <i class="ms-Icon ms-Icon--Delete" style="color: rgba(173, 38, 45, 1);"></i>
+                                <p>{{ local("Delete Template") }}</p>
                             </span>
                         </div>
                     </template>
@@ -57,10 +34,7 @@
             </div>
         </div>
         <add-template :show.sync="show.add"></add-template>
-        <rename-template
-            :value="currentItem"
-            :show.sync="show.rename"
-        ></rename-template>
+        <rename-template :value="currentItem" :show.sync="show.rename"></rename-template>
     </div>
 </template>
 
@@ -68,6 +42,7 @@
 import addTemplate from "@/components/templates/addTemplate.vue";
 import renameTemplate from "@/components/templates/renameTemplate.vue";
 import templateGrid from "@/components/templates/templateGrid.vue";
+import { ConflictBehavior } from "msgraphapi";
 import { mapMutations, mapState, mapGetters } from "vuex";
 
 // const path = require("path");
@@ -122,6 +97,7 @@ export default {
     },
     computed: {
         ...mapState({
+            root: (state) => state.root,
             data_path: (state) => state.data_path,
             data_index: (state) => state.data_index,
             templates: (state) => state.data_structure.templates,
@@ -141,16 +117,18 @@ export default {
             reviseEditor: "reviseEditor",
             toggleEditor: "toggleEditor",
         }),
-        templatesEnsureFolder() {
+        async templatesEnsureFolder() {
             if (!this.cur_db || this.data_index == -1) return;
             this.lock = false;
-            // ipc.send(
-            //     "ensure-folder",
-            //     path.join(this.data_path[this.data_index], "root/templates")
-            // );
-            // ipc.on("ensure-folder-callback", () => {
-            //     this.lock = true;
-            // });
+            try {
+                await this.root.clone("root").createListAsync({
+                    name: "templates",
+                    conflict: ConflictBehavior.Fail
+                })
+            } catch {
+
+            }
+            this.lock = true;
         },
         deleteTemplate() {
             if (!this.currentItem.id || !this.lock) return;
@@ -160,7 +138,7 @@ export default {
                 confirmTitle: this.local("Confirm"),
                 cancelTitle: this.local("Cancel"),
                 theme: this.theme,
-                confirm: () => {
+                confirm: async () => {
                     this.lock = false;
                     let index = this.templates.indexOf(
                         this.templates.find(
@@ -172,17 +150,10 @@ export default {
                         $index: this.data_index,
                         templates: this.templates,
                     });
-                    // ipc.send(
-                    //     "remove-file",
-                    //     path.join(
-                    //         this.data_path[this.data_index],
-                    //         "root/templates",
-                    //         `${this.currentItem.id}.json`
-                    //     )
-                    // );
+                    await this.root.path(`root/templates/${this.currentItem.id}.json`).delAsync()
                     this.lock = true;
                 },
-                cancel: () => {},
+                cancel: () => { },
             });
         },
         deleteTemplates() {
@@ -195,12 +166,12 @@ export default {
                     confirmTitle: this.local("Confirm"),
                     cancelTitle: this.local("Cancel"),
                     theme: this.theme,
-                    confirm: () => {
+                    confirm: async () => {
                         this.lock = false;
                         let copy = JSON.parse(
                             JSON.stringify(this.currentChoosen)
                         );
-                        copy.forEach((el) => {
+                        for (let el of copy) {
                             let index = this.templates.indexOf(
                                 this.templates.find((it) => it.id === el.id)
                             );
@@ -209,18 +180,11 @@ export default {
                                 $index: this.data_index,
                                 templates: this.templates,
                             });
-                            // ipc.send(
-                            //     "remove-file",
-                            //     path.join(
-                            //         this.data_path[this.data_index],
-                            //         "root/templates",
-                            //         `${el.id}.json`
-                            //     )
-                            // );
+                            await this.root.clone().path(`root/templates/${el.id}.json`).delAsync()
                             this.lock = true;
-                        });
+                        }
                     },
-                    cancel: () => {},
+                    cancel: () => { },
                 }
             );
         },

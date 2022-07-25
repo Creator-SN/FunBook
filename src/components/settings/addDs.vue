@@ -1,84 +1,40 @@
 <template>
-    <float-window-base
-        v-model="thisShow"
-        :title="local('Init New Data Source')"
-        :theme="theme"
-    >
+    <float-window-base v-model="thisShow" :title="local('Init New Data Source')" :theme="theme">
         <template v-slot:content>
             <div class="w-p-block" style="height: 100%;">
-                <p class="w-title">{{local('Data Source Name')}}</p>
-                <fv-Breadcrumb
-                    v-model="path"
-                    :theme="theme"
-                    :readOnly="false"
-                    style="width: 100%; height: 30px; margin-top: 15px;"
-                    @keyup.native.enter="addDS"
-                >
+                <p class="w-title">{{ local('Data Source Name') }}</p>
+                <fv-Breadcrumb v-model="path" :theme="theme" :readOnly="false"
+                    style="width: 100%; height: 30px; margin-top: 15px;" @keyup.native.enter="addDS">
                 </fv-Breadcrumb>
-                <div
-                    v-show="lock.loading"
-                    class="tree-view-window"
-                >
-                    <fv-TreeView
-                        v-model="treeList"
-                        :theme="theme"
-                        expandedIconPosition="right"
+                <div v-show="lock.loading" class="tree-view-window">
+                    <fv-TreeView v-model="treeList" :theme="theme" expandedIconPosition="right"
                         :background="theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)'"
-                        :view-style="{backgroundColor: theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)', backgroundColorHover: theme == 'dark' ? 'rgba(200, 200, 200, 0.1)' : 'rgba(255, 255, 255, 1)'}"
-                        style="width: 100%; height: 100%; overflow: auto;"
-                        @click="expandItem"
-                    >
+                        :view-style="{ backgroundColor: theme == 'dark' ? 'rgba(45, 45, 45, 1)' : 'rgba(255, 255, 255, 1)', backgroundColorHover: theme == 'dark' ? 'rgba(200, 200, 200, 0.1)' : 'rgba(255, 255, 255, 1)' }"
+                        style="width: 100%; height: 100%; overflow: auto;" @click="expandItem">
                         <template v-slot:default="x">
                             <div class="tree-view-custom-item">
-                                <img
-                                    v-if="!x.item.loading"
-                                    draggable="false"
-                                    class="icon-img"
-                                    :src="x.item.icon"
-                                    alt=""
-                                >
-                                <fv-progress-ring
-                                    v-else
-                                    loading="true"
-                                    r="10"
-                                    borderWidth="2"
-                                    background="rgba(200, 200, 200, 0.1)"
-                                    style="display: flex; align-item: center;"
-                                ></fv-progress-ring>
-                                <p class="tree-view-custom-label">{{x.item.name}}</p>
+                                <img v-if="!x.item.loading" draggable="false" class="icon-img" :src="x.item.icon"
+                                    alt="">
+                                <fv-progress-ring v-else loading="true" r="10" borderWidth="2"
+                                    background="rgba(200, 200, 200, 0.1)" style="display: flex; align-item: center;">
+                                </fv-progress-ring>
+                                <p class="tree-view-custom-label">{{ x.item.name }}</p>
                             </div>
                         </template>
                     </fv-TreeView>
                 </div>
-                <div
-                    v-show="!lock.loading"
-                    class="loading-block"
-                >
-                    <fv-img
-                        draggable="false"
-                        :src="img.OneDrive"
-                        style="width: 90px; height: auto; margin: 15px;"
-                    ></fv-img>
-                    <fv-progress-ring
-                        loading="true"
-                        r="15"
-                        borderWidth="3"
-                        background="rgba(200, 200, 200, 0.1)"
-                    ></fv-progress-ring>
+                <div v-show="!lock.loading" class="loading-block">
+                    <fv-img draggable="false" :src="img.OneDrive" style="width: 90px; height: auto; margin: 15px;">
+                    </fv-img>
+                    <fv-progress-ring loading="true" r="15" borderWidth="3" background="rgba(200, 200, 200, 0.1)">
+                    </fv-progress-ring>
                 </div>
             </div>
         </template>
         <template v-slot:control>
-            <fv-button
-                theme="dark"
-                background="rgba(0, 153, 204, 1)"
-                :disabled="path === ''"
-                @click="addDS"
-            >{{local('Confirm')}}</fv-button>
-            <fv-button
-                :theme="theme"
-                @click="thisShow = false"
-            >{{local('Cancel')}}</fv-button>
+            <fv-button theme="dark" background="rgba(0, 153, 204, 1)" :disabled="path === ''" @click="addDS">
+                {{ local('Confirm') }}</fv-button>
+            <fv-button :theme="theme" @click="thisShow = false">{{ local('Cancel') }}</fv-button>
         </template>
     </float-window-base>
 </template>
@@ -86,7 +42,7 @@
 <script>
 import floatWindowBase from "../window/floatWindowBase.vue";
 import { mapMutations, mapState, mapGetters } from "vuex";
-
+import { GraphAPI } from "msgraphapi";
 import OneDrive from "@/assets/settings/OneDrive.svg";
 import folder from "@/assets/settings/folder.svg";
 import file from "@/assets/settings/file.svg";
@@ -130,7 +86,10 @@ export default {
     },
     computed: {
         ...mapState({
-            onedrive: (state) => state.onedrive,
+            /**
+             * @returns {GraphAPI}
+             */
+            graphAPI: (state) => state.graphAPI,
             data_path: (state) => state.data_path,
             language: (state) => state.language,
             dbList: (state) => state.dbList,
@@ -158,9 +117,9 @@ export default {
         async getRootInfo() {
             if (!this.lock.loading) return;
             this.lock.loading = false;
-            let res = await this.onedrive.getMyDriveRootChildren();
-            if (res.value) {
-                let treeList = this.onedriveChildrenFormat(res.value);
+            let res = await this.graphAPI.OneDrive.Drive().listAsync();
+            if (res) {
+                let treeList = this.onedriveChildrenFormat(res);
                 this.treeList = treeList;
             }
             this.lock.loading = true;
@@ -187,20 +146,15 @@ export default {
             if (!item.folder) return;
             if (item.finished) return;
             item.loading = true;
-            let children = await this.onedrive.getMyDriveItemChildren(item.id);
-            if (children.value) {
+            let children = await this.graphAPI.OneDrive.Drive().item(item.id).listAsync()
+            if (children) {
                 item.children = this.onedriveChildrenFormat(
-                    children.value,
+                    children,
                     item
                 );
             }
             item.finished = true;
             item.loading = false;
-            // let grandParent = item;
-            // while(grandParent.depth != 1) {
-            //     grandParent = grandParent.parent;
-            // }
-            // this.$set(this.treeList, this.treeList.indexOf(grandParent), grandParent);
         },
     },
 };

@@ -1,4 +1,5 @@
 import { OnlineDB } from "@/js/onlineDB.js";
+import { GraphAPI } from "msgraphapi"
 
 export default {
     load_ds_file
@@ -6,9 +7,9 @@ export default {
 
 /**
  * 初始化源数据数据库文件
- *
+ * @param {GraphAPI} graphAPI GraphAPI对象
  */
-async function load_ds_file(onedriveObj, data_path = [], progressUpdater = null) {
+async function load_ds_file(graphAPI, data_path = [], progressUpdater = null) {
     let dbXList = [];
     if (data_path.length == 0)
         return {
@@ -18,7 +19,7 @@ async function load_ds_file(onedriveObj, data_path = [], progressUpdater = null)
         };
     for (let url of data_path) {
         let cur_db = null;
-        cur_db = new OnlineDB(onedriveObj, progressUpdater);
+        cur_db = new OnlineDB(graphAPI, progressUpdater);
         await cur_db.initDB(url);
         dbXList.push({
             status: 200,
